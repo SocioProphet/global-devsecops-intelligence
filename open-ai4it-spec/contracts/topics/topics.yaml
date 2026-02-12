@@ -1,0 +1,39 @@
+# Topic taxonomy (open)
+#
+# We keep the maturity ladder: raw -> normalized -> derived -> insight.
+#
+# raw: vendor/native payloads (minimal transform)
+# normalized: canonical semantics
+# derived: computed artifacts (templates, groups, stories)
+# insight: model outputs + explainability
+
+release_profiles:
+  ga:
+    - derived-stories
+    - normalized-alerts
+    - normalized-logs
+    - raw-user-actions
+    - raw-user-messages
+    - windowed-logs
+  closed_beta:
+    - derived-alert-correlation
+    - derived-alert-groups
+    - derived-alerts
+    - derived-log-ad-grouping
+    - derived-log-clustering
+    - derived-log-explanation
+    - derived-log-story-localization
+    - derived-stories
+    - normalized-alerts
+    - normalized-incidents
+    - normalized-k8s-configs
+    - normalized-logs
+    - normalized-metrics
+    - raw-k8s-configs
+    - raw-logdna-logs
+    - raw-pagerduty-alerts
+    - raw-servicenow-incidents
+    - raw-sysdig-metrics
+    - raw-user-actions
+    - raw-user-messages
+    - windowed-logs

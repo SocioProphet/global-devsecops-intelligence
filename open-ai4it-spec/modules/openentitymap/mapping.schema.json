@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenEntityMap Mapping",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "type",
+      "rules"
+    ],
+    "properties": {
+      "type": {
+        "type": "string",
+        "description": "query action type or boolean shortcut; in source examples `true` is used to mean unconditional."
+      },
+      "field": {
+        "type": "string"
+      },
+      "condition": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      },
+      "rules": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "type",
+            "filters"
+          ],
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "condition": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ]
+            },
+            "filters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "type",
+                  "actions"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "seqId",
+                        "type",
+                        "condition"
+                      ],
+                      "properties": {
+                        "seqId": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "data action type (jq, regex, replace, split, strip, keymap, urls, ips, select_one, select_all, key, pairs)"
+                        },
+                        "field": {
+                          "type": "string"
+                        },
+                        "condition": {
+                          "type": [
+                            "string",
+                            "number",
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "on_error": {
+                          "type": "string",
+                          "enum": [
+                            "skip",
+                            "null",
+                            "fail"
+                          ],
+                          "default": "skip"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

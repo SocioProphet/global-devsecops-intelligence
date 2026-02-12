@@ -1,0 +1,10 @@
+README.md
+docs/architecture/api-interactions-decision.md
+docs/devops/devops-process-open.md
+docs/vision/ai4it-home-rewrite.md
+open-ai4it-spec/README.md
+open-ai4it-spec/contracts/schemas/entity-output.schema.json
+open-ai4it-spec/contracts/schemas/event-envelope.schema.json
+open-ai4it-spec/contracts/topics/topics.yaml
+open-ai4it-spec/docs/glossary/TERMS.md
+open-ai4it-spec/modules/openentitymap/mapping.schema.json

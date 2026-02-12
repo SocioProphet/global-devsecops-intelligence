@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI4IT Event Envelope",
+  "type": "object",
+  "required": [
+    "timestamp",
+    "utc_timestamp",
+    "type"
+  ],
+  "properties": {
+    "story_id": {
+      "type": "string",
+      "description": "Identifier of the story (required for derived/insight messages; optional for raw/normalized)."
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "POSIX timestamp in milliseconds used for ordering in event buses that rely on numeric time."
+    },
+    "utc_timestamp": {
+      "type": "string",
+      "description": "RFC3339/ISO-8601 timestamp in UTC, e.g., 2019-10-22T18:25:53.038Z"
+    },
+    "type": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "description": "Message type identifier in lowercase snake_case."
+    },
+    "data": {
+      "type": "object",
+      "description": "Payload object; in the source this is <data_name>. In open spec we standardize as `data` and include `data_name` for routing if desired."
+    },
+    "data_name": {
+      "type": "string",
+      "description": "Optional explicit name for payload object (e.g., metrics, alert_group)."
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "description": "Ad-hoc feature list."
+    },
+    "meta_features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "description": "Ad-hoc message-level features."
+    },
+    "explainability": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Explanation object for insights."
+    },
+    "feedback": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Feedback object for model improvement."
+    }
+  },
+  "additionalProperties": false
+}
