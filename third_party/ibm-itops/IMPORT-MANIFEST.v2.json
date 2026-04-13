@@ -1,0 +1,48 @@
+{
+  "upstream_repo": "https://github.com/IBM/ITOPS-ontology",
+  "license": "Apache 2.0",
+  "status": "metadata-first",
+  "supersedes": "third_party/ibm-itops/IMPORT-MANIFEST.json",
+  "notes": [
+    "GitHub blob SHAs are recorded here where available.",
+    "Cryptographic SHA-256 digests for vendored payload files remain pending until payload import."
+  ],
+  "upstream_files": {
+    "GLO_V1.ttl": {
+      "github_blob_sha": "5f90ccc6d9550aa60fe9f2374632e034d899f0f3",
+      "retrieval_url": "https://raw.githubusercontent.com/IBM/ITOPS-ontology/master/GLO_V1.ttl"
+    },
+    "ITOPS_S1_PUB.ttl.zip": {
+      "github_blob_sha": "423583195fbe4b7b0d6f229b683575bdef70ad26",
+      "retrieval_url": "https://raw.githubusercontent.com/IBM/ITOPS-ontology/master/ITOPS_S1_PUB.ttl.zip"
+    },
+    "ITOPS_S2_PUB.ttl.zip": {
+      "github_blob_sha": "9d94c15fbb9889fa738b7c37c013723e2c8d63b3",
+      "retrieval_url": "https://raw.githubusercontent.com/IBM/ITOPS-ontology/master/ITOPS_S2_PUB.ttl.zip"
+    },
+    "ITOPS_S3_PUB.ttl.zip": {
+      "github_blob_sha": "4898bad985efb1d9a058eae4f9df053007e93d66",
+      "retrieval_url": "https://raw.githubusercontent.com/IBM/ITOPS-ontology/master/ITOPS_S3_PUB.ttl.zip"
+    },
+    "ITOPS_README.pdf": {
+      "github_blob_sha": "9367f6dcea972f7578cae865a016cba4c6b304cb",
+      "retrieval_url": "https://raw.githubusercontent.com/IBM/ITOPS-ontology/master/ITOPS_README.pdf"
+    },
+    "LICENSE": {
+      "github_blob_sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+    },
+    "README.md": {
+      "github_blob_sha": "400d22139e473da8dde1ab1b3452045dc0833bca"
+    },
+    "dcat_desc.ttl": {
+      "github_blob_sha": "114517208c629d691c50ff7a856cf24bc17830be"
+    }
+  },
+  "retrieved_on": "2026-04-13",
+  "preferred_first_payload": "GLO_V1.ttl",
+  "deferred_payloads": [
+    "ITOPS_S1_PUB.ttl.zip",
+    "ITOPS_S2_PUB.ttl.zip",
+    "ITOPS_S3_PUB.ttl.zip"
+  ]
+}
