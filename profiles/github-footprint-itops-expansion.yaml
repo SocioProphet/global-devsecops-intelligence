@@ -1,0 +1,177 @@
+profile:
+  id: github-footprint-itops-expansion
+  version: 0.1.0
+  status: draft
+  purpose: >-
+    Extend the IBM ITOPS seed with the SocioProphet GitHub footprint, ontogenesis
+    semantic scaffolding, and public website surface taxonomy.
+
+source_planes:
+  repository_spine:
+    repo: SocioProphet/sociosphere
+    files:
+      - registry/canonical-repos.yaml
+      - registry/repository-ontology.yaml
+      - registry/dependency-graph.yaml
+      - governance/CANONICAL_SOURCES.yaml
+  semantic_scaffold:
+    repo: SocioProphet/ontogenesis
+    files:
+      - README.md
+      - ontogenesis.ttl
+      - context.jsonld
+  website_surface_taxonomy:
+    site: socioprophet.com
+    pages:
+      - /documentation/
+      - /organizations/
+      - /documentation/guide/surface-inventory/
+      - /documentation/guide/governed-ai-and-cybernetics/
+      - /documentation/guide/agent-plane-and-operator-workflows/
+      - /documentation/guide/provider-capability-routing/
+      - /documentation/guide/digital-trust-and-capability-routing/
+
+local_classes:
+  RepositoryArtifact:
+    maps_to_glo: [Document, WorkProduct]
+    maps_to_ontogenesis: []
+    description: Governed source artifact boundary for code, docs, schemas, tests, and deployment assets.
+  RuntimeSystem:
+    maps_to_glo: [System, TechnicalSystem]
+    maps_to_ontogenesis: [Provenance, EvaluationEvent, PolicyDecision]
+    description: Runtime or logical system represented by one or more repositories.
+  OperationalService:
+    maps_to_glo: [Service]
+    maps_to_ontogenesis: [Provenance]
+    description: Service-bearing operational capability exposed to operators or other systems.
+  WebsiteSurface:
+    maps_to_glo: [Service, Document]
+    maps_to_ontogenesis: [Provenance]
+    description: Public-facing trust and audience boundary with normalized operational topics.
+  DependencyEdge:
+    maps_to_glo: [partOf]
+    maps_to_ontogenesis: []
+    description: Directed dependency or control relationship between repositories or systems.
+  CanonicalSourceNamespace:
+    maps_to_glo: [Document]
+    maps_to_ontogenesis: [PolicyDecision]
+    description: Namespace or semantic authority assignment recorded by workspace governance.
+  EvidenceArtifact:
+    maps_to_glo: [Document, WorkProduct, provenance]
+    maps_to_ontogenesis: [Receipt, Provenance, EvaluationEvent]
+    description: Evidence emitted during workflow execution, review, promotion, or reversal.
+  WorkflowState:
+    maps_to_glo: [State]
+    maps_to_ontogenesis: [EvaluationEvent, PolicyDecision]
+    description: Attributable workflow state used in operator-facing execution traces.
+  ProviderConnectionState:
+    maps_to_glo: [State]
+    maps_to_ontogenesis: [Provenance]
+    description: Visible provider-health or provider-capability condition.
+  CapabilityType:
+    maps_to_glo: [Service]
+    maps_to_ontogenesis: [PolicyDecision]
+    description: Routed capability class under policy and provider health constraints.
+
+controlled_vocabularies:
+  workflow_roles:
+    - requester
+    - reviewer
+    - executor
+    - auditor
+    - safeguarding_authority
+  workflow_states:
+    - proposed
+    - approved
+    - executing
+    - degraded
+    - paused
+    - completed
+    - reviewed
+    - reversed
+    - remediated
+  capability_types:
+    - coding
+    - research
+    - browsing
+    - local_execution
+    - recovery_fallback
+  provider_connection_states:
+    - not_connected
+    - connecting
+    - connected
+    - needs_reauth
+    - limited_capability
+    - failed_test
+    - revoked
+
+surface_taxonomy:
+  organizations:
+    category: deployment
+    normalized_topics: [deployment, institutions, governance, trust, capability]
+  documentation:
+    category: docs
+    normalized_topics: [architecture, reference, trust, platform, governance]
+  ai:
+    category: technical
+    normalized_topics: [intelligence, platform, automation, builders, trust]
+  developer:
+    category: technical
+    normalized_topics: [platform, builders, integration, capability, apis]
+  cloud:
+    category: technical
+    normalized_topics: [platform, operations, deployment, trust, hosting]
+  live:
+    category: technical
+    normalized_topics: [platform, operations, deployment, signal, demonstration]
+  digital_trust:
+    category: trust
+    normalized_topics: [trust, governance, identity, platform, public_positioning]
+  entity_analytics:
+    category: docs
+    normalized_topics: [architecture, reference, trust, platform, governance]
+
+footprint_bindings:
+  sociosphere:
+    layer: control-plane
+    role: orchestrator
+    binds: [RepositoryArtifact, DependencyEdge, CanonicalSourceNamespace]
+  ontogenesis:
+    layer: ontology
+    role: ontology
+    binds: [Provenance, PolicyDecision, EvaluationEvent, EvidenceArtifact]
+  global-devsecops-intelligence:
+    layer: governance
+    role: intelligence
+    binds: [WebsiteSurface, WorkflowState, CapabilityType, ProviderConnectionState, EvidenceArtifact]
+  prophet-platform:
+    layer: core-platform
+    role: platform
+    binds: [RuntimeSystem, OperationalService]
+  agentplane:
+    layer: execution-plane
+    role: execution-plane
+    binds: [WorkflowState, EvidenceArtifact, CapabilityType]
+  regis-entity-graph:
+    layer: identity
+    role: knowledge-graph
+    binds: [CanonicalSourceNamespace, EvidenceArtifact]
+  policy-fabric:
+    layer: governance
+    role: standards
+    binds: [PolicyDecision, EvidenceArtifact]
+
+relationships:
+  - repository_controls_surface
+  - repository_is_canonical_source_for_namespace
+  - repository_depends_on_repository
+  - surface_routes_to_capability
+  - provider_state_constrains_capability
+  - workflow_transition_emits_evidence
+  - policy_decision_gates_transition
+  - review_can_promote_or_reverse
+
+notes:
+  - RepositoryArtifact is intentionally not equated one-to-one with RuntimeSystem.
+  - IBM GLO remains a bridge ontology, not the sole canonical meaning for repository or surface identity.
+  - GLO_V1.ttl remains the preferred first vendored payload for semantic alignment.
