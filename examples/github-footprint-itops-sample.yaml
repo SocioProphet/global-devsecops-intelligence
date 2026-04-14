@@ -1,0 +1,105 @@
+sample:
+  id: github-footprint-itops-sample
+  version: 0.1.0
+
+repositories:
+  - id: sociosphere
+    layer: control-plane
+    role: orchestrator
+    source_plane: repository_spine
+    binds: [RepositoryArtifact, DependencyEdge, CanonicalSourceNamespace]
+  - id: ontogenesis
+    layer: ontology
+    role: ontology
+    source_plane: semantic_scaffold
+    binds: [EvidenceArtifact]
+  - id: global-devsecops-intelligence
+    layer: governance
+    role: intelligence
+    source_plane: profile_layer
+    binds: [WebsiteSurface, WorkflowState, CapabilityType, ProviderConnectionState, EvidenceArtifact]
+  - id: prophet-platform
+    layer: core-platform
+    role: platform
+    source_plane: repository_spine
+    binds: [RuntimeSystem, OperationalService]
+  - id: agentplane
+    layer: execution-plane
+    role: execution-plane
+    source_plane: website_surface_taxonomy
+    binds: [WorkflowState, EvidenceArtifact, CapabilityType]
+  - id: regis-entity-graph
+    layer: identity
+    role: knowledge-graph
+    source_plane: repository_spine
+    binds: [CanonicalSourceNamespace, EvidenceArtifact]
+  - id: policy-fabric
+    layer: governance
+    role: standards
+    source_plane: repository_spine
+    binds: [EvidenceArtifact]
+
+surfaces:
+  - id: organizations
+    category: deployment
+    normalized_topics: [deployment, institutions, governance, trust, capability]
+  - id: documentation
+    category: docs
+    normalized_topics: [architecture, reference, trust, platform, governance]
+  - id: ai
+    category: technical
+    normalized_topics: [intelligence, platform, automation, builders, trust]
+  - id: developer
+    category: technical
+    normalized_topics: [platform, builders, integration, capability, apis]
+  - id: cloud
+    category: technical
+    normalized_topics: [platform, operations, deployment, trust, hosting]
+  - id: live
+    category: technical
+    normalized_topics: [platform, operations, deployment, signal, demonstration]
+  - id: digital_trust
+    category: trust
+    normalized_topics: [trust, governance, identity, platform, public_positioning]
+
+namespace_bindings:
+  - namespace: workspace-controller
+    canonical_repo: sociosphere
+  - namespace: data/ontogenesis
+    canonical_repo: ontogenesis
+  - namespace: data/entity-graph
+    canonical_repo: regis-entity-graph
+  - namespace: protocol/execution
+    canonical_repo: agentplane
+
+dependencies:
+  - from: sociosphere
+    to: tritrpc
+    type: submodule
+  - from: sociosphere
+    to: workspace-event-schema
+    type: standards
+  - from: prophet-platform
+    to: event-bus
+    type: runtime
+  - from: prophet-platform
+    to: trust-registry
+    type: runtime
+
+workflow_examples:
+  - id: provider-capability-review
+    roles: [requester, reviewer, executor, auditor]
+    states: [proposed, approved, executing, reviewed, completed]
+    evidence_emitted: [receipt, provenance, policy_decision]
+  - id: degraded-provider-fallback
+    roles: [executor, auditor]
+    states: [executing, degraded, paused, remediated, completed]
+    provider_connection_states: [connected, limited_capability, failed_test]
+    capability_types: [browsing, research, recovery_fallback]
+
+ibm_glo_bindings:
+  RepositoryArtifact: [Document, WorkProduct]
+  RuntimeSystem: [System, TechnicalSystem]
+  OperationalService: [Service]
+  WorkflowState: [State]
+  EvidenceArtifact: [Document, WorkProduct, provenance]
