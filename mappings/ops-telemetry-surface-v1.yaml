@@ -1,0 +1,103 @@
+version: v1
+profile: ops-telemetry-surface
+repo_owner: global-devsecops-intelligence
+upstream_dependencies:
+  - socioprophet-standards-storage:040-observability-otel
+  - socioprophet-standards-storage:041-telemetry-control-plane-and-recovery
+planes:
+  - id: product
+    signals:
+      - runtime.component.started
+      - runtime.component.degraded
+      - incident.created
+      - ticket.clustered
+  - id: control
+    signals:
+      - feature.gate.evaluated
+      - experiment.exposed
+      - dynamic.config.loaded
+      - policy.decision.emitted
+  - id: data
+    signals:
+      - query.cache.hit
+      - query.cache.miss
+      - query.cache.write_failed
+      - query.fetch.failed
+      - dataset.materialized
+  - id: failure
+    signals:
+      - runtime.error.recoverable
+      - runtime.error.caught
+      - runtime.error.uncaught
+      - user.perceived.error
+  - id: recovery
+    signals:
+      - retry.executed
+      - cache.namespace.evicted
+      - rollback.executed
+      - fallback.rendered
+  - id: security
+    signals:
+      - sbom.generated
+      - vex.assertion.created
+      - attestation.verified
+      - attestation.failed
+      - finding.ingested
+      - evidence.chain.broken
+required_correlation:
+  - trace_id
+  - request_id
+  - build_id
+  - environment
+optional_correlation:
+  - span_id
+  - pipeline_run_id
+  - deploy_id
+  - artifact_digest
+  - ticket_id
+  - incident_id
+  - query_hash
+  - cache_key
+  - policy_decision_id
+adapters:
+  otel:
+    target_objects:
+      - TelemetrySignal
+      - CorrelationContext
+  sarif:
+    target_objects:
+      - FindingRecord
+      - EvidenceArtifact
+  cyclonedx:
+    target_objects:
+      - EvidenceArtifact
+      - IntelligenceAssertion
+  openvex:
+    target_objects:
+      - IntelligenceAssertion
+  stix_taxii:
+    target_objects:
+      - IntelligenceAssertion
+      - DetectionSignal
+  opa:
+    target_objects:
+      - PolicyDecision
+      - EvidenceArtifact
+topic_bindings:
+  ops.telemetry.signals.v1:
+    accepts:
+      - TelemetrySignal
+      - CorrelationContext
+  ops.security.findings.v1:
+    accepts:
+      - FindingRecord
+      - DetectionSignal
+  ops.policy.decisions.v1:
+    accepts:
+      - PolicyDecision
+  ops.evidence.artifacts.v1:
+    accepts:
+      - EvidenceArtifact
+  ops.learning.feedback.v1:
+    accepts:
+      - LearningFeedback
