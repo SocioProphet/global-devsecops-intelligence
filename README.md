@@ -33,6 +33,7 @@ This repository defines the **operations-domain specialization** for DevSecOps /
 - Mapping layers from external ontologies into the operations-domain profile
 - Evidence-oriented operational graph projections scoped to this profile
 - GitHub footprint alignment against workspace topology, ontology scaffolding, and website surface taxonomy
+- operational exhaust fusion across CI/CD, runtime, policy/evidence, market/execution, and trader-agent lanes
 
 This repository does **not** own canonical platform storage standards, canonical wire contracts, or the sole canonical platform ontology / broader knowledge semantics.
 
@@ -105,6 +106,14 @@ platform standards → knowledge / ontology standards → global-devsecops-intel
 
 See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/github-footprint-itops-alignment.md) for the full integration model.
 
+### Operational-exhaust fusion
+
+| Artifact | Status |
+|---|---|
+| `docs/devops/operational-exhaust-and-trader-agent-fusion.md` | draft |
+| `profiles/operational-exhaust-fusion-profile.v0.yaml` | draft |
+| `docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md` | accepted |
+
 ---
 
 ## Documentation
@@ -116,6 +125,9 @@ See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/
 | [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/github-footprint-itops-alignment.md) | GitHub footprint and website-surface alignment |
 | [`docs/devops/devops-process-open.md`](docs/devops/devops-process-open.md) | DevOps process and branching policy |
 | [`docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md`](docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md) | ADR 0001: ops-domain profile and external seed boundary |
+| [`docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md`](docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md) | ADR 0002: operational exhaust and trader-agent fusion boundary |
+| [`docs/devops/operational-exhaust-and-trader-agent-fusion.md`](docs/devops/operational-exhaust-and-trader-agent-fusion.md) | Ops-domain fusion model for platform and trader-agent exhaust |
+| [`profiles/operational-exhaust-fusion-profile.v0.yaml`](profiles/operational-exhaust-fusion-profile.v0.yaml) | Machine-readable operational exhaust fusion profile |
 | [`mappings/ibm-itops-glo-to-ops-domain.md`](mappings/ibm-itops-glo-to-ops-domain.md) | IBM ITOPS GLO → ops-domain mapping ledger |
 | [`open-ai4it-spec/docs/glossary/TERMS.md`](open-ai4it-spec/docs/glossary/TERMS.md) | Terminology glossary |
 | [`third_party/ibm-itops/UPSTREAM.md`](third_party/ibm-itops/UPSTREAM.md) | IBM ITOPS upstream provenance and retrieval metadata |
