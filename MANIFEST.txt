@@ -2,9 +2,11 @@ LICENSE
 MANIFEST.txt
 README.md
 docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md
+docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md
 docs/architecture/api-interactions-decision.md
 docs/architecture/github-footprint-itops-alignment.md
 docs/devops/devops-process-open.md
+docs/devops/operational-exhaust-and-trader-agent-fusion.md
 docs/vision/ai4it-home-rewrite.md
 mappings/ibm-itops-glo-to-ops-domain.md
 open-ai4it-spec/README.md
@@ -14,6 +16,7 @@ open-ai4it-spec/contracts/topics/topics.yaml
 open-ai4it-spec/docs/glossary/TERMS.md
 open-ai4it-spec/modules/openentitymap/mapping.schema.json
 profiles/github-footprint-itops-expansion.yaml
+profiles/operational-exhaust-fusion-profile.v0.yaml
 third_party/ibm-itops/IMPORT-MANIFEST.v2.json
 third_party/ibm-itops/LICENSE.Apache-2.0
 third_party/ibm-itops/UPSTREAM.md

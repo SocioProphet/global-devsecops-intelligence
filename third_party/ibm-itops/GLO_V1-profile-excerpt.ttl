@@ -1,0 +1,147 @@
+# Curated profile-relevant excerpt from IBM GLO_V1.ttl
+# Source ontology: https://github.com/IBM/ITOPS-ontology
+# License preserved locally in: third_party/ibm-itops/LICENSE.Apache-2.0
+# Purpose: selected concepts used by the GitHub footprint / website-surface operations profile.
+
+@prefix : <http://www.ibm.com/GLO#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.ibm.com/GLO>
+  a owl:Ontology ;
+.
+
+:Document
+  a :DomainEntity ;
+  rdfs:label "document" ;
+  rdfs:subConceptOf :WorkProduct ;
+.
+
+:WorkProduct
+  a :DomainEntity ;
+  rdfs:label "work product" ;
+  rdfs:subConceptOf :Product ;
+  rdfs:subConceptOf :Work ;
+.
+
+:Organization
+  a :DomainEntity ;
+  rdfs:label "organization"@en ;
+  rdfs:subConceptOf :GroupOfHumans ;
+.
+
+:Company
+  a :DomainEntity ;
+  rdfs:label "company" ;
+  rdfs:subConceptOf :Organization ;
+.
+
+:Project
+  a :DomainEntity ;
+  rdfs:label "project" ;
+  rdfs:subConceptOf :WorkProduct ;
+.
+
+:System
+  a :DomainEntity ;
+  rdfs:label "system" ;
+  rdfs:subConceptOf :DomainEntity ;
+.
+
+:TechnicalSystem
+  a :DomainEntity ;
+  rdfs:label "technical system" ;
+  rdfs:subConceptOf :System ;
+.
+
+:Service
+  a :DomainEntity ;
+  rdfs:label "service" ;
+  rdfs:subConceptOf :EconomicConcept ;
+.
+
+:Incident
+  a :OccurrenceEntity ;
+  rdfs:label "activity" ;
+  rdfs:subConceptOf :Occurrence ;
+.
+
+:State
+  a :OccurrenceEntity ;
+  rdfs:label "state" ;
+  rdfs:subConceptOf :Occurrence ;
+.
+
+:provenance
+  a owl:AnnotationProperty ;
+  rdfs:label "provenance" ;
+  rdfs:range rdfs:Literal ;
+  rdfs:subPropertyOf :topAnnotationProperty ;
+.
+
+:hasPart
+  a owl:ObjectProperty ;
+  rdfs:label "has part" ;
+  rdfs:domain :DomainEntity ;
+  rdfs:range :DomainEntity ;
+  rdfs:subPropertyOf :domainEntityObjProp ;
+  owl:inverseOf :partOf ;
+.
+
+:partOf
+  a owl:ObjectProperty ;
+  rdfs:label "part of" ;
+  rdfs:domain :DomainEntity ;
+  rdfs:range :DomainEntity ;
+  rdfs:subPropertyOf :domainEntityObjProp ;
+  owl:inverseOf :hasPart ;
+.
+
+:topAnnotationProperty
+  a owl:AnnotationProperty ;
+  rdfs:label "top annotation property" ;
+.
+
+:domainEntityObjProp
+  a owl:ObjectProperty ;
+  rdfs:label "domain entity object property" ;
+  rdfs:domain :DomainEntity ;
+  rdfs:range :DomainEntity ;
+.
+
+:DomainEntity
+  a owl:Class ;
+  rdfs:label "domain entity" ;
+.
+
+:Occurrence
+  a :OccurrenceEntity ;
+  rdfs:label "occurrence" ;
+.
+
+:OccurrenceEntity
+  a owl:Class ;
+  rdfs:label "occurrence entity" ;
+  rdfs:subClassOf :DomainEntity ;
+.
+
+:GroupOfHumans
+  a :DomainEntity ;
+  rdfs:label "group of humans" ;
+.
+
+:Product
+  a :DomainEntity ;
+  rdfs:label "product" ;
+.
+
+:Work
+  a :DomainEntity ;
+  rdfs:label "work" ;
+.
+
+:EconomicConcept
+  a :OccurrenceEntity ;
+  rdfs:label "economic concept" ;
+.

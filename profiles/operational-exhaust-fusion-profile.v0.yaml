@@ -1,89 +1,113 @@
-apiVersion: global-devsecops-intelligence.socioprophet.org/v0alpha1
-kind: OperationalExhaustFusionProfile
-metadata:
-  name: platform-and-trader-agent-fusion
-spec:
-  purpose: >
+profile:
+  id: operational-exhaust-fusion
+  version: 0.0.1
+  status: draft
+  purpose: >-
     Fuse platform, agent, DevSecOps, market-data, and trader-agent operational
     exhaust into a single ops-domain intelligence projection surface.
-  ownership_boundary:
-    canonical_storage_and_wire: SocioProphet/socioprophet-standards-storage
-    canonical_ontology:
-      - SocioProphet/ontogenesis
-      - SocioProphet/socioprophet-standards-knowledge
-    operations_domain_projection: SocioProphet/global-devsecops-intelligence
-  lanes:
-    - id: ci_delivery
-      examples:
-        - build.started
-        - build.finished
-        - tests.finished
-        - deployment.applied
-        - deployment.rollback
-    - id: runtime_service_agent
-      examples:
-        - service.health
-        - queue.pressure
-        - route.degraded
-        - agent.lifecycle
-        - capability.changed
-    - id: policy_evidence
-      examples:
-        - policy.decision
-        - authorization.denied
-        - attestation.verified
-        - replay.receipt
-        - evidence.bundle.sealed
-    - id: market_data_operations
-      examples:
-        - feed.connected
-        - feed.degraded
-        - gap.detected
-        - observations.late
-        - replay.completed
-    - id: trader_agent_execution
-      examples:
-        - strategy_run.started
-        - model.selected
-        - order_intent.created
-        - order.filled
-        - order.rejected
-        - risk_control.activated
-    - id: trader_agent_learning
-      examples:
-        - post_trade.completed
-        - replay.parity.completed
-        - strategy.promotion_recommended
-        - operator.override
-  common_required_fields:
-    - event_id
-    - observed_at
-    - source_repo
-    - source_surface
-    - source_runtime
-    - environment_ref
-    - trace_ref
-    - projection_family
-  trader_agent_required_fields:
-    - strategy_run_ref
-    - model_ref
-    - feature_snapshot_ref
-    - market_window_ref
-    - risk_policy_ref
-    - order_intent_ref
-    - execution_ref
-    - venue_ref
-  sinks:
-    - operational_graph_projection
-    - incident_story_grouping
-    - feedback_loop
-    - replay_alignment
-    - policy_review
-  export_rules:
-    raw_sensitive_payloads: reference_only
-    canonical_market_semantics_owned_here: false
-    canonical_wire_semantics_owned_here: false
-  external_seed_candidates:
-    - name: ge-chu-bdi-ontology-pentest-automation
-      role: ops_domain_seed_influence_only
-      status: candidate
+
+ownership_boundary:
+  canonical_storage_and_wire: SocioProphet/socioprophet-standards-storage
+  canonical_ontology:
+    - SocioProphet/ontogenesis
+    - SocioProphet/socioprophet-standards-knowledge
+  operations_domain_projection: SocioProphet/global-devsecops-intelligence
+
+lanes:
+  ci_delivery:
+    examples:
+      - build.started
+      - build.finished
+      - tests.finished
+      - deployment.applied
+      - deployment.rollback
+  runtime_service_agent:
+    examples:
+      - service.health
+      - queue.pressure
+      - route.degraded
+      - agent.lifecycle
+      - capability.changed
+  policy_evidence:
+    examples:
+      - policy.decision
+      - authorization.denied
+      - attestation.verified
+      - replay.receipt
+      - evidence.bundle.sealed
+  market_data_operations:
+    examples:
+      - feed.connected
+      - feed.degraded
+      - gap.detected
+      - observations.late
+      - replay.completed
+  trader_agent_execution:
+    examples:
+      - strategy_run.started
+      - model.selected
+      - order_intent.created
+      - order.filled
+      - order.rejected
+      - risk_control.activated
+  trader_agent_learning:
+    examples:
+      - post_trade.completed
+      - replay.parity.completed
+      - strategy.promotion_recommended
+      - operator.override
+
+common_required_fields:
+  - event_id
+  - observed_at
+  - source_repo
+  - source_surface
+  - source_runtime
+  - environment_ref
+  - actor_ref
+  - trace_ref
+  - projection_family
+
+common_conditional_fields:
+  - field: story_ref
+    condition: when applicable
+  - field: policy_ref
+    condition: when applicable
+  - field: evidence_ref
+    condition: when applicable
+  - field: artifact_ref
+    condition: when applicable
+  - field: severity
+    condition: when applicable
+  - field: operational_band
+    condition: alternative to severity
+
+trader_agent_required_fields:
+  - strategy_run_ref
+  - model_ref
+  - feature_snapshot_ref
+  - market_window_ref
+  - risk_policy_ref
+  - order_intent_ref
+  - execution_ref
+  - venue_ref
+  - portfolio_scope_ref
+  - replay_ref
+  - post_trade_evaluation_ref
+
+sinks:
+  - operational_graph_projection
+  - incident_story_grouping
+  - feedback_loop
+  - replay_alignment
+  - policy_review
+
+export_rules:
+  raw_sensitive_payloads: reference_only
+  canonical_market_semantics_owned_here: false
+  canonical_wire_semantics_owned_here: false
+
+external_seed_candidates:
+  - name: ge-chu-bdi-ontology-pentest-automation
+    role: ops_domain_seed_influence_only
+    status: candidate
