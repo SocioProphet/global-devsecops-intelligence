@@ -7,11 +7,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE = ROOT / "profiles" / "github-footprint-itops-expansion.yaml"
 SAMPLE = ROOT / "examples" / "github-footprint-itops-sample.yaml"
+GENERATED = ROOT / "examples" / "github-footprint-itops-generated.yaml"
 SMOKE = ROOT / "tests" / "github-footprint-itops-smoke.yaml"
 MAPPING = ROOT / "mappings" / "ibm-itops-glo-to-ops-domain.md"
 GLO_EXCERPT = ROOT / "third_party" / "ibm-itops" / "GLO_V1-profile-excerpt.ttl"
+SOCIOSPHERE_INPUT = ROOT / "source_inputs" / "sociosphere" / "repository-map.v0.json"
+ONTOGENESIS_INPUT = ROOT / "source_inputs" / "ontogenesis" / "module-map.v0.json"
 
-REQUIRED_FILES = [PROFILE, SAMPLE, SMOKE, MAPPING, GLO_EXCERPT]
+REQUIRED_FILES = [
+    PROFILE,
+    SAMPLE,
+    GENERATED,
+    SMOKE,
+    MAPPING,
+    GLO_EXCERPT,
+    SOCIOSPHERE_INPUT,
+    ONTOGENESIS_INPUT,
+]
 REQUIRED_PROFILE_TOKENS = [
     "id: github-footprint-itops-expansion",
     "status: draft",
@@ -62,6 +74,22 @@ REQUIRED_SAMPLE_TOKENS = [
     "WorkflowState: [State]",
     "EvidenceArtifact: [Document, WorkProduct, provenance]",
 ]
+REQUIRED_GENERATED_TOKENS = [
+    "id: github-footprint-itops-generated",
+    "generator: tools/generate_github_footprint_itops_projection.py",
+    "sociosphere: SocioProphet/sociosphere",
+    "ontogenesis: SocioProphet/ontogenesis",
+    "id: policy-fabric",
+    "namespace: workspace/registry",
+    "namespace: data/ontogenesis",
+    "from: global-devsecops-intelligence",
+    "to: ontogenesis",
+    "type: semantic-scaffold",
+    "capabilities: [rdf_parse_validation, shacl_gates, jsonld_roundtrip_checks, dist_build, ledger_build_and_verification, spdx_sbom_generation]",
+    "id: catalog/registry.ttl",
+    "lifecycle_states: [SEEDED, NORMALIZED, LINKED, TRUSTED, ACTIONABLE, DELIVERED]",
+    "WebsiteSurface: [Service, Document]",
+]
 REQUIRED_SMOKE_TOKENS = [
     "source-planes-present",
     "repository-spine-points-to-sociosphere",
@@ -94,6 +122,12 @@ REQUIRED_GLO_TOKENS = [
     ":hasPart",
     ":partOf",
 ]
+REQUIRED_SOURCE_INPUT_TOKENS = [
+    "SocioProphet/sociosphere",
+    "SocioProphet/ontogenesis",
+    "canonical_repo",
+    "dependencies",
+]
 
 
 def fail(message: str) -> int:
@@ -115,15 +149,18 @@ def main() -> int:
 
         require_tokens("profile", PROFILE.read_text(encoding="utf-8"), REQUIRED_PROFILE_TOKENS)
         require_tokens("sample", SAMPLE.read_text(encoding="utf-8"), REQUIRED_SAMPLE_TOKENS)
+        require_tokens("generated", GENERATED.read_text(encoding="utf-8"), REQUIRED_GENERATED_TOKENS)
         require_tokens("smoke", SMOKE.read_text(encoding="utf-8"), REQUIRED_SMOKE_TOKENS)
         require_tokens("mapping ledger", MAPPING.read_text(encoding="utf-8"), REQUIRED_MAPPING_TOKENS)
         require_tokens("GLO profile excerpt", GLO_EXCERPT.read_text(encoding="utf-8"), REQUIRED_GLO_TOKENS)
+        require_tokens("sociosphere input", SOCIOSPHERE_INPUT.read_text(encoding="utf-8"), REQUIRED_SOURCE_INPUT_TOKENS)
+        require_tokens("ontogenesis input", ONTOGENESIS_INPUT.read_text(encoding="utf-8"), REQUIRED_SOURCE_INPUT_TOKENS)
     except FileNotFoundError as exc:
         return fail(f"missing required file: {exc.args[0]}")
     except Exception as exc:  # noqa: BLE001 - CLI validator should surface direct error text
         return fail(str(exc))
 
-    print("OK: validated GitHub footprint ITOPS profile, sample, smoke checks, mapping ledger, and IBM GLO excerpt")
+    print("OK: validated GitHub footprint ITOPS profile, generated projection, sample, smoke checks, mapping ledger, and IBM GLO excerpt")
     return 0
 
 
