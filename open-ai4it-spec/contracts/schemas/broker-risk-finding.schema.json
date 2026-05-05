@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BrokerRiskFinding",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "finding_id": { "type": "string", "minLength": 1 },
+    "finding_type": { "type": "string", "const": "BrokerRiskFinding" },
+    "subject_ref": { "type": "string", "minLength": 1 },
+    "risk_level": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "category": { "type": "string", "enum": ["policy", "evidence", "cost", "portability", "continuity", "provider", "exception", "runtime"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "rationale": { "type": "string", "minLength": 1 },
+    "recommended_actions": { "type": "array", "items": { "type": "string" } },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "observed_at": { "type": "string", "minLength": 1 }
+  },
+  "required": ["finding_id", "finding_type", "subject_ref", "risk_level", "category", "summary", "rationale", "observed_at"]
+}
