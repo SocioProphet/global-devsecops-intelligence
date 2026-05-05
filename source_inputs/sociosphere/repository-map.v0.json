@@ -1,0 +1,81 @@
+{
+  "snapshot": {
+    "id": "sociosphere-repository-map",
+    "version": "0.1.0",
+    "source_repo": "SocioProphet/sociosphere",
+    "source_files": [
+      "registry/canonical-repos.yaml",
+      "registry/repository-ontology.yaml",
+      "registry/dependency-graph.yaml",
+      "governance/CANONICAL_SOURCES.yaml"
+    ],
+    "captured_for": "github-footprint-itops-expansion"
+  },
+  "repositories": [
+    {
+      "id": "sociosphere",
+      "layer": "control-plane",
+      "role": "orchestrator",
+      "description": "Workspace controller, standards hub, and canonical repository registry.",
+      "topics": ["workspace", "orchestrator", "registry", "governance"]
+    },
+    {
+      "id": "global-devsecops-intelligence",
+      "layer": "governance",
+      "role": "intelligence",
+      "description": "DevSecOps intelligence surface for security, delivery, and posture visibility.",
+      "topics": ["devsecops", "intelligence", "governance", "security"]
+    },
+    {
+      "id": "ontogenesis",
+      "layer": "ontology",
+      "role": "ontology",
+      "description": "Auditable ontology engineering framework for RDF/OWL/JSON-LD assets.",
+      "topics": ["ontology", "rdf", "owl", "shacl", "json-ld", "governance"]
+    },
+    {
+      "id": "prophet-platform",
+      "layer": "core-platform",
+      "role": "platform",
+      "description": "Core prophet platform services and APIs.",
+      "topics": ["platform", "api", "services", "runtime"]
+    },
+    {
+      "id": "agentplane",
+      "layer": "execution-plane",
+      "role": "execution-plane",
+      "description": "Execution runtime plane for orchestrated task or agent workloads.",
+      "topics": ["agent", "execution", "workflow", "evidence"]
+    },
+    {
+      "id": "regis-entity-graph",
+      "layer": "identity",
+      "role": "knowledge-graph",
+      "description": "Entity graph for governance actors, roles, identities, and relationships.",
+      "topics": ["identity", "entity-graph", "governance", "relationships"]
+    },
+    {
+      "id": "policy-fabric",
+      "layer": "governance",
+      "role": "standards",
+      "description": "Policy-governed data protection control repo for authored policies and validation evidence.",
+      "topics": ["policy", "governance", "privacy", "validation"]
+    }
+  ],
+  "namespace_bindings": [
+    {"namespace": "workspace-controller", "canonical_repo": "sociosphere"},
+    {"namespace": "workspace/registry", "canonical_repo": "sociosphere"},
+    {"namespace": "data/ontogenesis", "canonical_repo": "ontogenesis"},
+    {"namespace": "data/entity-graph", "canonical_repo": "regis-entity-graph"},
+    {"namespace": "protocol/execution", "canonical_repo": "agentplane"},
+    {"namespace": "prophet/platform", "canonical_repo": "prophet-platform"}
+  ],
+  "dependencies": [
+    {"from": "sociosphere", "to": "tritrpc", "type": "submodule"},
+    {"from": "sociosphere", "to": "workspace-event-schema", "type": "standards"},
+    {"from": "prophet-platform", "to": "event-bus", "type": "runtime"},
+    {"from": "prophet-platform", "to": "trust-registry", "type": "runtime"},
+    {"from": "global-devsecops-intelligence", "to": "ontogenesis", "type": "semantic-scaffold"},
+    {"from": "global-devsecops-intelligence", "to": "sociosphere", "type": "repository-spine"}
+  ]
+}
