@@ -1,0 +1,68 @@
+id: client-runtime-dump-exposure-profile
+version: 0.1.0
+status: draft
+finding_family: ClientRuntimeDumpExposure
+related_standard:
+  repo: SocioProphet/socioprophet-standards-knowledge
+  pr: 61
+  path: docs/standards/052-client-runtime-object-dump-forensics.md
+purpose: >-
+  Classify browser/client runtime diagnostic artifacts that expose sensitive
+  client state or cyclic runtime object graphs before redaction.
+severity_model:
+  high:
+    condition: cookies_or_auth_material_present
+    examples:
+      - cookie_field
+      - session_token
+      - client_auth_info
+  medium:
+    condition: identity_or_private_route_or_telemetry_present
+    examples:
+      - relay_email
+      - account_identifier
+      - private_route_id
+      - telemetry_session_id
+      - build_sequence_id
+  low:
+    condition: redacted_structural_runtime_graph_only
+  informational:
+    condition: synthetic_fixture_or_documentation_only
+sensitive_field_classes:
+  cookies:
+    tokens: ["cookie:", "Set-Cookie", "_puid", "sid="]
+  auth_session:
+    tokens: ["auth", "session", "token", "client-auth-info", "did"]
+  identity:
+    tokens: ["email", "relay", "displayName", "avatar", "user_id"]
+  private_routes:
+    tokens: ["conversation_id", "tenant_id", "workspace_id", "route_id"]
+  telemetry:
+    tokens: ["rum", "trace", "source-map", "build", "seq"]
+  runtime_graph:
+    tokens: ["__reactContainer", "ownerDocument", "containerInfo", "memoizedState", "Window", "HTMLDocument"]
+required_controls:
+  - quarantine_raw_dump
+  - redact_before_indexing
+  - reject_public_cookie_material
+  - reject_public_client_auth_info
+  - reject_public_private_route_ids
+  - log_bounded_diagnostic_records
+  - preserve_redaction_provenance
+operations_mapping:
+  evidence_artifact: EvidenceArtifact
+  workflow_state: WorkflowState
+  service: OperationalService
+  control: SecurityControl
+  provenance: ProvenanceRecord
+allowed_evidence:
+  - synthetic_unsafe_fixture
+  - redacted_safe_fixture
+  - bounded_summary_record
+  - redaction_transform_metadata
+disallowed_evidence:
+  - real_browser_cookie
+  - real_auth_session_value
+  - real_relay_email
+  - real_private_conversation_url
+  - real_client_telemetry_session_id
