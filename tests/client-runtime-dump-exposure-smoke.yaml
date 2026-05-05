@@ -1,0 +1,45 @@
+id: client-runtime-dump-exposure-smoke
+version: 0.1.0
+status: draft
+checks:
+  - id: finding-family-present
+    description: Profile defines ClientRuntimeDumpExposure.
+    expect_tokens:
+      - ClientRuntimeDumpExposure
+      - finding_family
+  - id: severity-model-present
+    description: Profile distinguishes high, medium, low, and informational severities.
+    expect_tokens:
+      - cookies_or_auth_material_present
+      - identity_or_private_route_or_telemetry_present
+      - redacted_structural_runtime_graph_only
+      - synthetic_fixture_or_documentation_only
+  - id: sensitive-fields-present
+    description: Profile tracks cookie, auth, identity, route, telemetry, and runtime graph classes.
+    expect_tokens:
+      - cookie:
+      - client-auth-info
+      - relay
+      - conversation_id
+      - source-map
+      - __reactContainer
+      - ownerDocument
+      - containerInfo
+  - id: unsafe-synthetic-sample-present
+    description: Example includes synthetic unsafe sample with expected high severity.
+    expect_tokens:
+      - unsafe_synthetic
+      - SYNTHETIC_COOKIE_MATERIAL
+      - expected_severity: high
+  - id: safe-redacted-sample-present
+    description: Example includes redacted safe sample with expected low severity.
+    expect_tokens:
+      - safe_redacted
+      - REDACTED_COOKIE_BLOB
+      - expected_severity: low
+  - id: bounded-record-present
+    description: Example includes preferred bounded diagnostic record shape.
+    expect_tokens:
+      - ClientRuntimeDiagnosticRecord
+      - native_object_logged: false
+      - removed_classes
