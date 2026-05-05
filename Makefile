@@ -1,4 +1,4 @@
-.PHONY: validate test service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate
+.PHONY: validate test service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate
 
 validate: service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate
 	@echo "OK: validate"
@@ -9,7 +9,10 @@ service-desk-metrics-validate:
 model-fabric-release-readiness-validate:
 	python3 tools/validate_model_fabric_release_readiness.py
 
-github-footprint-itops-validate:
+github-footprint-itops-generated-validate:
+	python3 tools/generate_github_footprint_itops_projection.py
+
+github-footprint-itops-validate: github-footprint-itops-generated-validate
 	python3 tools/validate_github_footprint_itops.py
 
 test:
