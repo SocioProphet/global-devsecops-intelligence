@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.org/schemas/open-ai4it/browser-telemetry-finding.schema.json",
+  "title": "BrowserTelemetryFinding",
+  "description": "Operations-domain finding for browser telemetry, privacy-risk, collector reachability, and evidence-boundary analysis.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "finding_id",
+    "finding_type",
+    "source",
+    "assessment",
+    "confidence",
+    "causality_status",
+    "observed_surfaces",
+    "telemetry_lanes",
+    "evidence_refs",
+    "recommended_next_step"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "finding_id": {"type": "string", "minLength": 3},
+    "finding_type": {
+      "type": "string",
+      "enum": [
+        "browser_telemetry_surface",
+        "browser_metadata_intake",
+        "collector_reachability_matrix",
+        "browser_runtime_evidence"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "origin"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["browser_trace", "repository", "runtime_evidence", "server_intake", "manual_analysis"]
+        },
+        "origin": {"type": "string", "minLength": 1},
+        "captured_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "assessment": {
+      "type": "string",
+      "enum": [
+        "compatibility_noise",
+        "privacy_relevant_surface",
+        "collector_reachability_substrate",
+        "confirmed_metadata_intake",
+        "confirmed_behavioral_coupling",
+        "refuted_behavioral_coupling"
+      ]
+    },
+    "confidence": {"type": "string", "enum": ["low", "moderate", "high"]},
+    "causality_status": {"type": "string", "enum": ["observed", "inferred", "unproven", "refuted"]},
+    "observed_surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["surface", "surface_class", "confidence"],
+        "properties": {
+          "surface": {"type": "string", "minLength": 1},
+          "surface_class": {
+            "type": "string",
+            "enum": ["capability_surface", "preference_surface", "telemetry_lane", "collector_reachability", "parser_compatibility"]
+          },
+          "confidence": {"type": "string", "enum": ["observed", "inferred", "unproven", "refuted"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "telemetry_lanes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lane", "lane_class", "outcome"],
+        "properties": {
+          "lane": {"type": "string", "minLength": 1},
+          "lane_class": {"type": "string", "enum": ["first_party", "third_party", "unknown"]},
+          "outcome": {"type": "string", "enum": ["success", "blocked", "csp_blocked", "failed", "unknown"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref_id", "ref_type", "description"],
+        "properties": {
+          "ref_id": {"type": "string", "minLength": 1},
+          "ref_type": {"type": "string", "enum": ["console_trace", "network_trace", "repository_file", "runtime_evidence", "external_reference", "analysis_note"]},
+          "description": {"type": "string", "minLength": 1},
+          "uri": {"type": "string"}
+        }
+      }
+    },
+    "upstream_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repository", "relationship"],
+        "properties": {
+          "repository": {"type": "string", "minLength": 1},
+          "relationship": {"type": "string", "minLength": 1},
+          "path": {"type": "string"}
+        }
+      }
+    },
+    "recommended_next_step": {"type": "string", "minLength": 1},
+    "notes": {"type": "string"}
+  }
+}
