@@ -122,11 +122,26 @@ REQUIRED_GLO_TOKENS = [
     ":hasPart",
     ":partOf",
 ]
-REQUIRED_SOURCE_INPUT_TOKENS = [
+REQUIRED_SOCIOSPHERE_INPUT_TOKENS = [
     "SocioProphet/sociosphere",
-    "SocioProphet/ontogenesis",
+    "registry/canonical-repos.yaml",
+    "registry/repository-ontology.yaml",
+    "governance/CANONICAL_SOURCES.yaml",
     "canonical_repo",
     "dependencies",
+    "global-devsecops-intelligence",
+]
+REQUIRED_ONTOGENESIS_INPUT_TOKENS = [
+    "SocioProphet/ontogenesis",
+    "catalog/registry.ttl",
+    "ontogenesis.ttl",
+    "context.jsonld",
+    "shapes/",
+    "rdf_parse_validation",
+    "shacl_gates",
+    "SPDX",
+    "PolicyDecision",
+    "Receipt",
 ]
 
 
@@ -153,8 +168,8 @@ def main() -> int:
         require_tokens("smoke", SMOKE.read_text(encoding="utf-8"), REQUIRED_SMOKE_TOKENS)
         require_tokens("mapping ledger", MAPPING.read_text(encoding="utf-8"), REQUIRED_MAPPING_TOKENS)
         require_tokens("GLO profile excerpt", GLO_EXCERPT.read_text(encoding="utf-8"), REQUIRED_GLO_TOKENS)
-        require_tokens("sociosphere input", SOCIOSPHERE_INPUT.read_text(encoding="utf-8"), REQUIRED_SOURCE_INPUT_TOKENS)
-        require_tokens("ontogenesis input", ONTOGENESIS_INPUT.read_text(encoding="utf-8"), REQUIRED_SOURCE_INPUT_TOKENS)
+        require_tokens("sociosphere input", SOCIOSPHERE_INPUT.read_text(encoding="utf-8"), REQUIRED_SOCIOSPHERE_INPUT_TOKENS)
+        require_tokens("ontogenesis input", ONTOGENESIS_INPUT.read_text(encoding="utf-8"), REQUIRED_ONTOGENESIS_INPUT_TOKENS)
     except FileNotFoundError as exc:
         return fail(f"missing required file: {exc.args[0]}")
     except Exception as exc:  # noqa: BLE001 - CLI validator should surface direct error text
