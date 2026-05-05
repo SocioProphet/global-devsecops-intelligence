@@ -1,0 +1,29 @@
+{
+  "projection_id": "ops-proj-operational-exhaust-0001",
+  "source_contracts": [
+    "SocioProphet/prophet-platform/contracts/OperationalExhaustObserved.v0.1.json",
+    "SocioProphet/prophet-platform/contracts/TraderAgentExecutionObserved.v0.1.json"
+  ],
+  "projection_family": "trader_agent_execution",
+  "story_ref": "story:trader-agent-demo-0001",
+  "trace_ref": "trace:trader-agent-demo-0001",
+  "entities": [
+    {"type": "ops:TraderStrategyRun", "ref": "strategy-run:mean-reversion-demo-0001"},
+    {"type": "ops:ModelVersion", "ref": "model:research-agent-v0"},
+    {"type": "ops:MarketWindow", "ref": "market-window:example-20260505-0240"},
+    {"type": "ops:RiskPolicy", "ref": "risk-policy:paper-trading-v0"},
+    {"type": "ops:OrderIntent", "ref": "order-intent:demo-0001"},
+    {"type": "ops:Execution", "ref": "execution:demo-ack-0001"}
+  ],
+  "edges": [
+    {"from": "strategy-run:mean-reversion-demo-0001", "rel": "usedModel", "to": "model:research-agent-v0"},
+    {"from": "strategy-run:mean-reversion-demo-0001", "rel": "usedMarketWindow", "to": "market-window:example-20260505-0240"},
+    {"from": "order-intent:demo-0001", "rel": "producedExecution", "to": "execution:demo-ack-0001"},
+    {"from": "execution:demo-ack-0001", "rel": "guardedBy", "to": "risk-policy:paper-trading-v0"}
+  ],
+  "projection_rules": {
+    "raw_sensitive_payloads": "reference_only",
+    "retain_receipts": true,
+    "canonical_market_semantics_owned_here": false
+  }
+}
