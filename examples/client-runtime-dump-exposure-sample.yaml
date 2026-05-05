@@ -1,0 +1,53 @@
+id: client-runtime-dump-exposure-sample
+version: 0.1.0
+status: synthetic
+finding_family: ClientRuntimeDumpExposure
+samples:
+  unsafe_synthetic:
+    description: >-
+      Synthetic unsafe browser dump excerpt. Values are bracketed placeholders
+      and must not be replaced with real cookies or real user/client identifiers.
+    excerpt: |
+      error { target: img, isTrusted: true, type: "error" }
+      cookie: "[SYNTHETIC_COOKIE_MATERIAL]; [SYNTHETIC_CLIENT_AUTH_INFO]; [SYNTHETIC_PUID]"
+      HTMLDocument https://example.invalid/private-route/[SYNTHETIC_CONVERSATION_ID]
+      __reactContainer$SYNTHETIC: Object { alternate: Object, stateNode: Object }
+      stateNode: Object { containerInfo: HTMLDocument https://example.invalid/private-route/[SYNTHETIC_CONVERSATION_ID] }
+    expected_severity: high
+    expected_controls:
+      - quarantine_raw_dump
+      - redact_before_indexing
+      - reject_public_cookie_material
+  safe_redacted:
+    description: Redacted structural equivalent safe for review and indexing.
+    excerpt: |
+      error { target: img, isTrusted: true, type: "error" }
+      cookie: "[REDACTED_COOKIE_BLOB]"
+      HTMLDocument https://[REDACTED_PRIVATE_ROUTE]
+      __reactContainer$[REDACTED_SUFFIX]: Object { alternate: Object, stateNode: Object }
+      stateNode: Object { containerInfo: HTMLDocument https://[REDACTED_PRIVATE_ROUTE] }
+    expected_severity: low
+    expected_controls:
+      - preserve_redaction_provenance
+      - log_bounded_diagnostic_records
+  bounded_record:
+    description: Preferred bounded diagnostic record shape.
+    record:
+      kind: ClientRuntimeDiagnosticRecord
+      version: "0.1"
+      finding_family: ClientRuntimeDumpExposure
+      event:
+        type: error
+        native_object_logged: false
+      element:
+        tag: IMG
+        is_connected: false
+      redaction:
+        status: applied
+        removed_classes:
+          - cookies
+          - auth_session
+          - identity
+          - private_routes
+          - telemetry
+      severity: low
