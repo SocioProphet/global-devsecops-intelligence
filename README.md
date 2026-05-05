@@ -49,7 +49,7 @@ global-devsecops-intelligence/
 │   ├── architecture/           # Architecture and design notes
 │   ├── devops/                 # DevOps process documentation
 │   └── vision/                 # Vision and capability statements
-├── examples/                   # Example operational profile instances
+├── examples/                   # Example and generated operational profile instances
 ├── mappings/                   # Ontology mapping ledgers
 ├── open-ai4it-spec/            # Open AI4IT contracts, schemas, and modules
 │   ├── contracts/
@@ -58,10 +58,11 @@ global-devsecops-intelligence/
 │   ├── docs/glossary/          # Terminology glossary
 │   └── modules/openentitymap/  # Mapping DSL schema
 ├── profiles/                   # Machine-readable domain profiles
+├── source_inputs/              # Pinned upstream source extracts for deterministic generators
 ├── tests/                      # Profile smoke checks and pytest wrappers
 ├── third_party/
 │   └── ibm-itops/              # IBM ITOPS external seed import (metadata + curated excerpt)
-├── tools/                      # Local validators
+├── tools/                      # Local validators and generators
 ├── CHANGELOG.md
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
@@ -104,11 +105,13 @@ platform standards → knowledge / ontology standards → global-devsecops-intel
 
 | Plane | Provider | Status |
 |---|---|---|
-| Repository inventory / role ontology / dependency graph | `sociosphere` | active |
-| Provenance / policy / ontology-alignment scaffold | `ontogenesis` | active |
+| Repository inventory / role ontology / dependency graph | `sociosphere` | active, pinned extract under `source_inputs/sociosphere/` |
+| Provenance / policy / ontology-alignment scaffold | `ontogenesis` | active, pinned extract under `source_inputs/ontogenesis/` |
 | Normalized operational taxonomy for surfaces, workflow states, and capability routing | website surface inventory + public docs | active |
 | Machine-readable profile | `profiles/github-footprint-itops-expansion.yaml` | draft `v0.1.0` |
 | Example instance pack | `examples/github-footprint-itops-sample.yaml` | draft `v0.1.0` |
+| Generated projection | `examples/github-footprint-itops-generated.yaml` | generated from `source_inputs/` |
+| Generator | `tools/generate_github_footprint_itops_projection.py` | checked by `make validate` |
 | Smoke checks | `tests/github-footprint-itops-smoke.yaml` + `tools/validate_github_footprint_itops.py` | active |
 
 See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/github-footprint-itops-alignment.md) for the full integration model.
@@ -135,11 +138,13 @@ See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/
 | [`docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md`](docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md) | ADR 0002: operational exhaust and trader-agent fusion boundary |
 | [`docs/devops/operational-exhaust-and-trader-agent-fusion.md`](docs/devops/operational-exhaust-and-trader-agent-fusion.md) | Ops-domain fusion model for platform and trader-agent exhaust |
 | [`profiles/github-footprint-itops-expansion.yaml`](profiles/github-footprint-itops-expansion.yaml) | Machine-readable GitHub footprint ITOPS profile |
-| [`examples/github-footprint-itops-sample.yaml`](examples/github-footprint-itops-sample.yaml) | Example GitHub footprint ITOPS instance pack |
+| [`examples/github-footprint-itops-sample.yaml`](examples/github-footprint-itops-sample.yaml) | Hand-authored GitHub footprint ITOPS instance pack |
+| [`examples/github-footprint-itops-generated.yaml`](examples/github-footprint-itops-generated.yaml) | Generated projection from pinned `sociosphere` and `ontogenesis` source inputs |
 | [`profiles/operational-exhaust-fusion-profile.v0.yaml`](profiles/operational-exhaust-fusion-profile.v0.yaml) | Machine-readable operational exhaust fusion profile |
 | [`mappings/ibm-itops-glo-to-ops-domain.md`](mappings/ibm-itops-glo-to-ops-domain.md) | IBM ITOPS GLO → ops-domain mapping ledger |
 | [`open-ai4it-spec/docs/glossary/TERMS.md`](open-ai4it-spec/docs/glossary/TERMS.md) | Terminology glossary |
 | [`third_party/ibm-itops/UPSTREAM.md`](third_party/ibm-itops/UPSTREAM.md) | IBM ITOPS upstream provenance and retrieval metadata |
+| [`source_inputs/README.md`](source_inputs/README.md) | Source input snapshot policy |
 
 For a guided tour of the documentation tree, see [`docs/README.md`](docs/README.md).
 
@@ -157,7 +162,14 @@ The validation target currently covers:
 
 - service-desk metrics examples
 - model-fabric release-readiness scorecards
-- GitHub-footprint ITOPS profile, sample, smoke checks, mapping ledger, and IBM GLO profile excerpt
+- generated GitHub-footprint projection freshness
+- GitHub-footprint ITOPS profile, generated projection, sample, smoke checks, mapping ledger, source inputs, and IBM GLO profile excerpt
+
+Regenerate the GitHub-footprint projection from pinned source inputs:
+
+```bash
+python3 tools/generate_github_footprint_itops_projection.py --write
+```
 
 Run all pytest wrappers:
 
