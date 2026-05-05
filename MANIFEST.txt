@@ -18,6 +18,7 @@ docs/devops/devops-process-open.md
 docs/devops/operational-exhaust-and-trader-agent-fusion.md
 docs/vision/ai4it-home-rewrite.md
 examples/agent-service-desk-metrics.example.json
+examples/github-footprint-itops-generated.yaml
 examples/github-footprint-itops-sample.yaml
 examples/model-fabric-release-readiness.example.json
 mappings/ibm-itops-glo-to-ops-domain.md
@@ -29,11 +30,15 @@ open-ai4it-spec/docs/glossary/TERMS.md
 open-ai4it-spec/modules/openentitymap/mapping.schema.json
 profiles/github-footprint-itops-expansion.yaml
 profiles/operational-exhaust-fusion-profile.v0.yaml
+source_inputs/README.md
+source_inputs/ontogenesis/module-map.v0.json
+source_inputs/sociosphere/repository-map.v0.json
 tests/github-footprint-itops-smoke.yaml
 third_party/ibm-itops/GLO_V1-profile-excerpt.ttl
 third_party/ibm-itops/IMPORT-MANIFEST.v2.json
 third_party/ibm-itops/LICENSE.Apache-2.0
 third_party/ibm-itops/UPSTREAM.md
+tools/generate_github_footprint_itops_projection.py
 tools/tests/test_github_footprint_itops.py
 tools/tests/test_model_fabric_release_readiness.py
 tools/tests/test_service_desk_metrics.py
