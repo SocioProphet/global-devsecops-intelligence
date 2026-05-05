@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.org/schemas/open-ai4it/browser-telemetry-finding.schema.json",
+  "title": "WebRuntimePrivacyObservation",
+  "description": "Operations-domain observation record for web runtime privacy review and evidence separation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "record_type",
+    "source",
+    "assessment",
+    "confidence",
+    "causality_status",
+    "observations",
+    "evidence_refs",
+    "recommended_next_step"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "record_id": {"type": "string", "minLength": 3},
+    "record_type": {
+      "type": "string",
+      "enum": ["runtime_surface_review", "metadata_intake_review", "delivery_path_review", "runtime_evidence_review"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "origin"],
+      "properties": {
+        "source_type": {"type": "string", "enum": ["runtime_trace", "repository", "runtime_artifact", "server_intake", "manual_analysis"]},
+        "origin": {"type": "string", "minLength": 1},
+        "captured_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "assessment": {
+      "type": "string",
+      "enum": ["compatibility_noise", "privacy_relevant_surface", "delivery_path_substrate", "confirmed_metadata_intake", "confirmed_behavioral_coupling", "refuted_behavioral_coupling"]
+    },
+    "confidence": {"type": "string", "enum": ["low", "moderate", "high"]},
+    "causality_status": {"type": "string", "enum": ["observed", "inferred", "unproven", "refuted"]},
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "class", "confidence"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "class": {"type": "string", "enum": ["capability", "preference", "delivery_path", "policy_outcome", "parser_compatibility", "metadata_intake"]},
+          "confidence": {"type": "string", "enum": ["observed", "inferred", "unproven", "refuted"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "delivery_paths": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "scope", "status"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "scope": {"type": "string", "enum": ["first_party", "external", "unknown"]},
+          "status": {"type": "string", "enum": ["available", "policy_limited", "unavailable", "unknown"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref_id", "ref_type", "description"],
+        "properties": {
+          "ref_id": {"type": "string", "minLength": 1},
+          "ref_type": {"type": "string", "enum": ["runtime_trace", "network_trace", "repository_file", "runtime_artifact", "external_reference", "analysis_note"]},
+          "description": {"type": "string", "minLength": 1},
+          "uri": {"type": "string"}
+        }
+      }
+    },
+    "upstream_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repository", "relationship"],
+        "properties": {
+          "repository": {"type": "string", "minLength": 1},
+          "relationship": {"type": "string", "minLength": 1},
+          "path": {"type": "string"}
+        }
+      }
+    },
+    "recommended_next_step": {"type": "string", "minLength": 1},
+    "notes": {"type": "string"}
+  }
+}
