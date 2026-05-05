@@ -27,3 +27,12 @@ This directory contains the operations-domain profile documentation for `global-
 - [`../profiles/operational-exhaust-fusion-profile.v0.yaml`](../profiles/operational-exhaust-fusion-profile.v0.yaml)
 - [`../mappings/ibm-itops-glo-to-ops-domain.md`](../mappings/ibm-itops-glo-to-ops-domain.md)
 - [`../examples/github-footprint-itops-sample.yaml`](../examples/github-footprint-itops-sample.yaml)
+- [`../examples/github-footprint-itops-generated.yaml`](../examples/github-footprint-itops-generated.yaml)
+- [`../source_inputs/README.md`](../source_inputs/README.md)
+- [`../source_inputs/sociosphere/repository-map.v0.json`](../source_inputs/sociosphere/repository-map.v0.json)
+- [`../source_inputs/ontogenesis/module-map.v0.json`](../source_inputs/ontogenesis/module-map.v0.json)
+
+## Generator and validation entrypoints
+
+- [`../tools/generate_github_footprint_itops_projection.py`](../tools/generate_github_footprint_itops_projection.py) — deterministic projection generator from pinned source inputs.
+- [`../tools/validate_github_footprint_itops.py`](../tools/validate_github_footprint_itops.py) — local validation for the profile, generated projection, sample, smoke checks, mapping ledger, source inputs, and IBM GLO excerpt.
