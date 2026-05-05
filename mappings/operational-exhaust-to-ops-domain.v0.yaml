@@ -1,0 +1,53 @@
+apiVersion: global-devsecops-intelligence.socioprophet.org/v0alpha1
+kind: OperationalExhaustOpsDomainMapping
+metadata:
+  name: operational-exhaust-to-ops-domain-v0
+spec:
+  source_contracts:
+    - repo: SocioProphet/prophet-platform
+      path: contracts/OperationalExhaustObserved.v0.1.json
+      projection_family: generic_operational_exhaust
+    - repo: SocioProphet/prophet-platform
+      path: contracts/TraderAgentExecutionObserved.v0.1.json
+      projection_family: trader_agent_execution
+  target_projection:
+    repo: SocioProphet/global-devsecops-intelligence
+    profile: profiles/operational-exhaust-fusion-profile.v0.yaml
+  entity_mappings:
+    event_id: ops:OperationalEvent.id
+    observed_at: ops:OperationalEvent.observedAt
+    source_repo: ops:SourceRepository.name
+    source_surface: ops:SourceSurface.name
+    source_runtime: ops:Runtime.name
+    environment_ref: ops:Environment.ref
+    trace_ref: ops:Trace.ref
+    story_ref: ops:Story.ref
+    agent_ref: ops:Agent.ref
+    policy_ref: ops:Policy.ref
+    evidence_ref: ops:Evidence.ref
+    artifact_ref: ops:Artifact.ref
+    projection_family: ops:OperationalProjection.family
+  trader_agent_mappings:
+    strategy_run_ref: ops:TraderStrategyRun.ref
+    model_ref: ops:ModelVersion.ref
+    feature_snapshot_ref: ops:FeatureSnapshot.ref
+    market_window_ref: ops:MarketWindow.ref
+    risk_policy_ref: ops:RiskPolicy.ref
+    order_intent_ref: ops:OrderIntent.ref
+    execution_ref: ops:Execution.ref
+    venue_ref: ops:Venue.ref
+    portfolio_scope_ref: ops:PortfolioScope.ref
+    replay_ref: ops:Replay.ref
+    post_trade_evaluation_ref: ops:PostTradeEvaluation.ref
+  grouping_keys:
+    - trace_ref
+    - story_ref
+    - strategy_run_ref
+    - market_window_ref
+    - risk_policy_ref
+  projection_rules:
+    raw_sensitive_payloads: reference_only
+    retain_receipts: true
+    derived_graph_allowed: true
+    canonical_market_semantics_owned_here: false
+    canonical_wire_semantics_owned_here: false
