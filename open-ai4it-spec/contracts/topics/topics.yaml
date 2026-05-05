@@ -37,3 +37,11 @@ release_profiles:
     - raw-user-actions
     - raw-user-messages
     - windowed-logs
+  browser_telemetry_privacy_risk:
+    - raw-browser-console-traces
+    - raw-browser-network-traces
+    - normalized-browser-telemetry-findings
+    - normalized-collector-reachability
+    - derived-browser-privacy-risk-classification
+    - derived-runtime-evidence-boundary
+    - insight-behavioral-coupling-assessment
