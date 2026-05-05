@@ -1,0 +1,88 @@
+{
+  "schema_version": "0.1.0",
+  "finding_id": "browser-trace-chatgpt-console-2026-05",
+  "finding_type": "browser_telemetry_surface",
+  "source": {
+    "source_type": "browser_trace",
+    "origin": "chatgpt.com console/network trace",
+    "captured_at": "2026-05-04T13:44:31Z"
+  },
+  "assessment": "privacy_relevant_surface",
+  "confidence": "moderate",
+  "causality_status": "unproven",
+  "observed_surfaces": [
+    {
+      "surface": "PerformanceObserver longtask entry-type support",
+      "surface_class": "capability_surface",
+      "confidence": "observed",
+      "notes": "Runtime reported unsupported longtask entry type. Treat as capability-surface evidence, not behavior coupling by itself."
+    },
+    {
+      "surface": "prefers-reduced-transparency media feature parsing",
+      "surface_class": "preference_surface",
+      "confidence": "observed",
+      "notes": "Preference surface is privacy-relevant when queried or exposed in trace."
+    },
+    {
+      "surface": "modern or draft CSS parser warnings",
+      "surface_class": "parser_compatibility",
+      "confidence": "observed",
+      "notes": "Compatibility noise must not be overclassified without query and telemetry bridge."
+    },
+    {
+      "surface": "content-security-policy collector block",
+      "surface_class": "collector_reachability",
+      "confidence": "observed",
+      "notes": "Blocked collector outcome contributes to reachability matrix only."
+    }
+  ],
+  "telemetry_lanes": [
+    {
+      "lane": "https://www.google-analytics.com/g/collect",
+      "lane_class": "third_party",
+      "outcome": "blocked",
+      "notes": "Third-party collection lane was blocked in the observed trace."
+    },
+    {
+      "lane": "https://www.google.com/g/collect",
+      "lane_class": "third_party",
+      "outcome": "csp_blocked",
+      "notes": "Collector-like request was blocked by connect-src policy."
+    },
+    {
+      "lane": "https://chatgpt.com/ces/v1/t",
+      "lane_class": "first_party",
+      "outcome": "success",
+      "notes": "First-party telemetry or diagnostics lane returned HTTP 200 in the observed trace."
+    }
+  ],
+  "evidence_refs": [
+    {
+      "ref_id": "console-network-trace-001",
+      "ref_type": "console_trace",
+      "description": "User-provided browser console and network trace excerpt."
+    },
+    {
+      "ref_id": "analysis-note-001",
+      "ref_type": "analysis_note",
+      "description": "Classification note: privacy-relevant surface and collector reachability substrate; behavioral coupling unproven."
+    }
+  ],
+  "upstream_links": [
+    {
+      "repository": "SocioProphet/global-devsecops-intelligence",
+      "relationship": "operations-domain profile and classification home",
+      "path": "docs/architecture/browser-telemetry-finding-model.md"
+    },
+    {
+      "repository": "SocioProphet/prophet-platform",
+      "relationship": "future runtime contract and eval fixture consumer"
+    },
+    {
+      "repository": "SocioProphet/agentplane",
+      "relationship": "future controlled replay and evidence-bundle consumer"
+    }
+  ],
+  "recommended_next_step": "Capture stack and payload evidence in a controlled replay before promoting causality_status beyond unproven.",
+  "notes": "This example deliberately separates browser-trace evidence from upstream repository attribution."
+}
