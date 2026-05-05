@@ -139,7 +139,7 @@ REQUIRED_ONTOGENESIS_INPUT_TOKENS = [
     "shapes/",
     "rdf_parse_validation",
     "shacl_gates",
-    "SPDX",
+    "spdx_sbom_generation",
     "PolicyDecision",
     "Receipt",
 ]
