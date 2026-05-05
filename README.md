@@ -2,7 +2,7 @@
 
 > Operations-domain profile for DevSecOps / AIOps / AI4IT operational intelligence.
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Profile status: draft](https://img.shields.io/badge/profile-draft-yellow)](#status)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md)
 
@@ -15,6 +15,7 @@
 - [Ownership boundaries](#ownership-boundaries)
 - [Status](#status)
 - [Documentation](#documentation)
+- [Validation](#validation)
 - [Contributing](#contributing)
 - [Security](#security)
 - [License](#license)
@@ -48,6 +49,7 @@ global-devsecops-intelligence/
 │   ├── architecture/           # Architecture and design notes
 │   ├── devops/                 # DevOps process documentation
 │   └── vision/                 # Vision and capability statements
+├── examples/                   # Example operational profile instances
 ├── mappings/                   # Ontology mapping ledgers
 ├── open-ai4it-spec/            # Open AI4IT contracts, schemas, and modules
 │   ├── contracts/
@@ -56,13 +58,16 @@ global-devsecops-intelligence/
 │   ├── docs/glossary/          # Terminology glossary
 │   └── modules/openentitymap/  # Mapping DSL schema
 ├── profiles/                   # Machine-readable domain profiles
+├── tests/                      # Profile smoke checks and pytest wrappers
 ├── third_party/
-│   └── ibm-itops/              # IBM ITOPS external seed import (metadata-first)
+│   └── ibm-itops/              # IBM ITOPS external seed import (metadata + curated excerpt)
+├── tools/                      # Local validators
 ├── CHANGELOG.md
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── MANIFEST.txt
+├── Makefile
 ├── README.md
 └── SECURITY.md
 ```
@@ -92,7 +97,7 @@ platform standards → knowledge / ontology standards → global-devsecops-intel
 
 | Seed | Status | Notes |
 |---|---|---|
-| IBM ITOPS / `GLO_V1.ttl` | metadata-first import | Preferred first payload for semantic alignment — see `third_party/ibm-itops/` |
+| IBM ITOPS / `GLO_V1.ttl` | metadata-first import + curated profile excerpt | Full payload remains pending; curated profile excerpt is available at `third_party/ibm-itops/GLO_V1-profile-excerpt.ttl` |
 | `ITOPS_S1`, `ITOPS_S2`, `ITOPS_S3` | deferred | Deferred until vendoring, validation, and query strategy are approved |
 
 ### GitHub-footprint alignment
@@ -103,6 +108,8 @@ platform standards → knowledge / ontology standards → global-devsecops-intel
 | Provenance / policy / ontology-alignment scaffold | `ontogenesis` | active |
 | Normalized operational taxonomy for surfaces, workflow states, and capability routing | website surface inventory + public docs | active |
 | Machine-readable profile | `profiles/github-footprint-itops-expansion.yaml` | draft `v0.1.0` |
+| Example instance pack | `examples/github-footprint-itops-sample.yaml` | draft `v0.1.0` |
+| Smoke checks | `tests/github-footprint-itops-smoke.yaml` + `tools/validate_github_footprint_itops.py` | active |
 
 See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/github-footprint-itops-alignment.md) for the full integration model.
 
@@ -127,12 +134,36 @@ See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/
 | [`docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md`](docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md) | ADR 0001: ops-domain profile and external seed boundary |
 | [`docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md`](docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md) | ADR 0002: operational exhaust and trader-agent fusion boundary |
 | [`docs/devops/operational-exhaust-and-trader-agent-fusion.md`](docs/devops/operational-exhaust-and-trader-agent-fusion.md) | Ops-domain fusion model for platform and trader-agent exhaust |
+| [`profiles/github-footprint-itops-expansion.yaml`](profiles/github-footprint-itops-expansion.yaml) | Machine-readable GitHub footprint ITOPS profile |
+| [`examples/github-footprint-itops-sample.yaml`](examples/github-footprint-itops-sample.yaml) | Example GitHub footprint ITOPS instance pack |
 | [`profiles/operational-exhaust-fusion-profile.v0.yaml`](profiles/operational-exhaust-fusion-profile.v0.yaml) | Machine-readable operational exhaust fusion profile |
 | [`mappings/ibm-itops-glo-to-ops-domain.md`](mappings/ibm-itops-glo-to-ops-domain.md) | IBM ITOPS GLO → ops-domain mapping ledger |
 | [`open-ai4it-spec/docs/glossary/TERMS.md`](open-ai4it-spec/docs/glossary/TERMS.md) | Terminology glossary |
 | [`third_party/ibm-itops/UPSTREAM.md`](third_party/ibm-itops/UPSTREAM.md) | IBM ITOPS upstream provenance and retrieval metadata |
 
 For a guided tour of the documentation tree, see [`docs/README.md`](docs/README.md).
+
+---
+
+## Validation
+
+Run all local validators:
+
+```bash
+make validate
+```
+
+The validation target currently covers:
+
+- service-desk metrics examples
+- model-fabric release-readiness scorecards
+- GitHub-footprint ITOPS profile, sample, smoke checks, mapping ledger, and IBM GLO profile excerpt
+
+Run all pytest wrappers:
+
+```bash
+make test
+```
 
 ---
 
@@ -150,6 +181,6 @@ To report a security vulnerability, please follow the process described in [SECU
 
 ## License
 
-This repository is licensed under the [Apache License 2.0](LICENSE).
+This repository is licensed under the [MIT License](LICENSE).
 
 Third-party materials vendored under `third_party/` carry their own upstream licenses — see the corresponding `LICENSE.*` files and `UPSTREAM.md` files for details.
