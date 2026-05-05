@@ -1,0 +1,46 @@
+{
+  "snapshot": {
+    "id": "ontogenesis-module-map",
+    "version": "0.1.0",
+    "source_repo": "SocioProphet/ontogenesis",
+    "source_files": [
+      "README.md",
+      "catalog/registry.ttl",
+      "ontogenesis.ttl",
+      "context.jsonld",
+      "shapes/"
+    ],
+    "captured_for": "github-footprint-itops-expansion"
+  },
+  "capabilities": [
+    "rdf_parse_validation",
+    "shacl_gates",
+    "jsonld_roundtrip_checks",
+    "dist_build",
+    "ledger_build_and_verification",
+    "spdx_sbom_generation"
+  ],
+  "modules": [
+    {"id": "Upper", "kind": "ontology-layer", "description": "Upper ontology modules and shared semantic anchors."},
+    {"id": "Middle", "kind": "ontology-layer", "description": "Middle-layer workflow, relation, and operational bindings."},
+    {"id": "Lower", "kind": "ontology-layer", "description": "Lower-layer close-to-source semantic bindings."},
+    {"id": "Domains", "kind": "domain-ontology", "description": "Domain ontologies."},
+    {"id": "Platform", "kind": "platform-ontology", "description": "Platform-level ontology modules."},
+    {"id": "shapes", "kind": "validation", "description": "SHACL constraints and promotion gates."},
+    {"id": "catalog/registry.ttl", "kind": "registry", "description": "Module index with layer, path, SemVer, and base IRI metadata."}
+  ],
+  "useful_classes": [
+    "Provenance",
+    "EvaluationEvent",
+    "PolicyDecision",
+    "Receipt"
+  ],
+  "lifecycle_states": [
+    "SEEDED",
+    "NORMALIZED",
+    "LINKED",
+    "TRUSTED",
+    "ACTIONABLE",
+    "DELIVERED"
+  ]
+}
