@@ -1,0 +1,102 @@
+profile:
+  id: browser-telemetry-risk
+  version: 0.1.0
+  status: draft
+  purpose: >-
+    Classify browser telemetry, browser capability/preference surfaces, collector
+    reachability, and runtime evidence boundaries for operations-domain
+    intelligence without over-attributing intent.
+
+ownership_boundary:
+  canonical_storage_and_wire: SocioProphet/socioprophet-standards-storage
+  canonical_ontology:
+    - SocioProphet/ontogenesis
+    - SocioProphet/socioprophet-standards-knowledge
+  operations_domain_projection: SocioProphet/global-devsecops-intelligence
+  runtime_contracts: SocioProphet/prophet-platform
+  controlled_replay: SocioProphet/agentplane
+
+finding_types:
+  browser_telemetry_surface:
+    description: Runtime/browser trace evidence for queryable capability, preference, compatibility, telemetry, or collector reachability surfaces.
+    required_confidence_fields:
+      - assessment
+      - confidence
+      - causality_status
+      - evidence_refs
+  browser_metadata_intake:
+    description: Server-side or first-party intake code that records browser or client-hint style metadata.
+    required_confidence_fields:
+      - collected_fields
+      - policy_binding
+      - evidence_refs
+  collector_reachability_matrix:
+    description: Differentiated collector success, failure, or policy-block outcomes that may support telemetry-routing analysis.
+    required_confidence_fields:
+      - telemetry_lanes
+      - reachability_outcomes
+      - causality_status
+  browser_runtime_evidence:
+    description: Controlled replay or runtime capture evidence with stack, payload, or event-order context.
+    required_confidence_fields:
+      - capture_method
+      - replay_scope
+      - evidence_refs
+
+surface_classes:
+  capability_surface:
+    examples:
+      - PerformanceObserver.supportedEntryTypes
+      - CSS.supports
+      - API availability tests
+  preference_surface:
+    examples:
+      - matchMedia preference queries
+      - reduced motion or transparency media features
+      - client-side accessibility preference exposure
+  telemetry_lane:
+    examples:
+      - first-party diagnostics endpoint
+      - analytics collector endpoint
+      - event beacon path
+  collector_reachability:
+    examples:
+      - collector request success
+      - collector request blocked
+      - content-security-policy block
+      - transport failure
+  parser_compatibility:
+    examples:
+      - unsupported CSS property warning
+      - invalid descriptor warning
+      - draft pseudo-element warning
+
+confidence_rules:
+  observed: Directly visible in trace, code, or runtime artifact.
+  inferred: Supported by surrounding evidence but not directly observed.
+  unproven: Plausible but lacking causal bridge.
+  refuted: Contradicted by code, trace, or replay.
+
+causality_ladder:
+  - label: surface_exposed
+    requirement: Surface or lane is visible in trace or code.
+  - label: surface_queried
+    requirement: Runtime call shows feature, preference, or support state was queried.
+  - label: telemetry_observed
+    requirement: Outbound lane or intake path observed.
+  - label: behaviorally_coupled
+    requirement: Same stack, payload delta, retry branch, or replay proves surface result changed behavior.
+
+export_rules:
+  raw_browser_payloads: reference_only
+  high_entropy_values: minimize_or_hash
+  private_user_identifiers: reference_only
+  public_claims_require_causality: true
+  compatibility_noise_must_not_be_overclassified: true
+
+recommended_sinks:
+  - operational_graph_projection
+  - privacy_review
+  - runtime_evidence_replay
+  - platform_eval_fixture
+  - transparency_documentation
