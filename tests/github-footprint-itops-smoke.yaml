@@ -1,0 +1,107 @@
+smoke_tests:
+  - id: source-planes-present
+    description: All three evidence planes must be represented in the machine-readable profile.
+    expect:
+      source_planes:
+        - repository_spine
+        - semantic_scaffold
+        - website_surface_taxonomy
+
+  - id: repository-spine-points-to-sociosphere
+    description: The GitHub footprint spine must use sociosphere as its control-plane inventory source.
+    expect:
+      profile.source_planes.repository_spine.repo: SocioProphet/sociosphere
+
+  - id: ontogenesis-scaffold-present
+    description: Ontogenesis must be present as the semantic scaffold source.
+    expect:
+      profile.source_planes.semantic_scaffold.repo: SocioProphet/ontogenesis
+
+  - id: website-surface-taxonomy-present
+    description: The public website/docs plane must be present for surface normalization.
+    expect:
+      profile.source_planes.website_surface_taxonomy.site: socioprophet.com
+
+  - id: organizations-surface-has-deployment-topics
+    description: Organizations must normalize to deployment/institution/governance/trust/capability.
+    expect_contains:
+      profile.surface_taxonomy.organizations.normalized_topics:
+        - deployment
+        - governance
+        - trust
+        - capability
+
+  - id: cloud-surface-has-operations-topics
+    description: Cloud must expose operations/deployment/trust semantics.
+    expect_contains:
+      profile.surface_taxonomy.cloud.normalized_topics:
+        - operations
+        - deployment
+        - trust
+
+  - id: workflow-vocabulary-present
+    description: The workflow vocabulary must include review and reversal semantics.
+    expect_contains:
+      profile.controlled_vocabularies.workflow_states:
+        - proposed
+        - approved
+        - executing
+        - reviewed
+        - reversed
+        - remediated
+
+  - id: provider-connection-vocabulary-present
+    description: Provider states must include degraded/failure conditions.
+    expect_contains:
+      profile.controlled_vocabularies.provider_connection_states:
+        - connected
+        - limited_capability
+        - failed_test
+        - revoked
+
+  - id: ibm-project-not-canonical-cloud-project
+    description: IBM GLO Project must remain rejected as the canonical cloud-project meaning.
+    expect_mapping_status:
+      ledger_file: mappings/ibm-itops-glo-to-ops-domain.md
+      concept: Project
+      status: rejected
+
+  - id: ibm-service-and-system-adopted
+    description: IBM GLO System, TechnicalSystem, and Service remain bridge concepts for the profile.
+    expect_bindings:
+      local_classes:
+        RuntimeSystem:
+          maps_to_glo: [System, TechnicalSystem]
+        OperationalService:
+          maps_to_glo: [Service]
+
+queries:
+  - id: q1
+    question: Which repository is canonical source for data/ontogenesis?
+    expected_answer_shape:
+      canonical_repo: ontogenesis
+
+  - id: q2
+    question: Which repositories bind workflow state and evidence artifacts in the profile?
+    expected_answer_shape:
+      repositories:
+        - global-devsecops-intelligence
+        - agentplane
+
+  - id: q3
+    question: Which public surfaces normalize to operations and deployment topics?
+    expected_answer_shape:
+      surfaces:
+        - cloud
+        - live
+
+  - id: q4
+    question: Which IBM GLO bridge concepts support repository artifacts and evidence artifacts?
+    expected_answer_shape:
+      RepositoryArtifact:
+        - Document
+        - WorkProduct
+      EvidenceArtifact:
+        - Document
+        - WorkProduct
+        - provenance
