@@ -1,0 +1,89 @@
+{
+  "snapshot": {
+    "id": "ops-integration-plane-map",
+    "version": "0.1.0",
+    "captured_for": "github-footprint-itops-expansion",
+    "source_notes": [
+      "GAIA World Model, Meshrush, and Sherlock repositories were resolved directly in the SocioProphet GitHub estate.",
+      "SCOPED red-teaming is represented as a governed capability lane; no direct repository match was found during estate search."
+    ]
+  },
+  "integration_planes": [
+    {
+      "id": "gaia-world-model",
+      "kind": "world-model",
+      "status": "active",
+      "repo": "SocioProphet/gaia-world-model",
+      "operations_role": "World-model and action-framework integration spine for observe, audit, plan, and actuate loops.",
+      "binds": [
+        "RuntimeSystem",
+        "OperationalService",
+        "EvidenceArtifact",
+        "PolicyDecision",
+        "WorkflowState"
+      ],
+      "source_evidence": [
+        "SocioProphet/gaia-world-model README.md",
+        "gaia/ontology/ canonical entrypoints",
+        "gaia/cv/ provenance and manifest discipline"
+      ]
+    },
+    {
+      "id": "meshrush",
+      "kind": "graph-agent-runtime",
+      "status": "active",
+      "repo": "SocioProphet/meshrush",
+      "operations_role": "Graph-operating runtime for autonomous agents over typed hypergraph world-model views.",
+      "binds": [
+        "RuntimeSystem",
+        "OperationalService",
+        "DependencyEdge",
+        "WorkflowState",
+        "EvidenceArtifact"
+      ],
+      "source_evidence": [
+        "SocioProphet/meshrush README.md",
+        "foundation/core/omni/crystal/adapters layer model",
+        "evidence, traces, and learning surfaces for adjacent systems"
+      ]
+    },
+    {
+      "id": "sherlock",
+      "kind": "osint-username-recon",
+      "status": "active-legacy-upstream-derived",
+      "repo": "SocioProphet/sherlock",
+      "operations_role": "OSINT username-reconnaissance capability that must be governed as scoped, authorized, and evidence-producing when used operationally.",
+      "binds": [
+        "OperationalService",
+        "CapabilityType",
+        "EvidenceArtifact",
+        "ProviderConnectionState",
+        "PolicyDecision"
+      ],
+      "source_evidence": [
+        "SocioProphet/sherlock README.md",
+        "username search across social networks",
+        "site limitation, proxy, output, and test behavior"
+      ]
+    },
+    {
+      "id": "scoped-redteaming",
+      "kind": "governed-security-assessment-capability",
+      "status": "capability-plane-repo-pending",
+      "repo": null,
+      "operations_role": "Authorized red-team assessment lane constrained by scope, policy, evidence capture, review, and reversibility controls.",
+      "binds": [
+        "CapabilityType",
+        "WorkflowState",
+        "EvidenceArtifact",
+        "PolicyDecision",
+        "ProviderConnectionState"
+      ],
+      "source_evidence": [
+        "SocioProphet website Organizations / Authorized Cyberdefense surface",
+        "human oversight and restricted-use boundary",
+        "repo search did not locate a dedicated scoped-redteaming repository"
+      ]
+    }
+  ]
+}
