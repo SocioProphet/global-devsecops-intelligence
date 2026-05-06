@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.dev/schemas/global-devsecops-intelligence/github-footprint-itops-generated.schema.json",
+  "title": "GitHub Footprint ITOPS Generated Projection",
+  "type": "object",
+  "required": [
+    "generated_projection",
+    "repositories",
+    "namespace_bindings",
+    "dependencies",
+    "surfaces",
+    "integration_planes",
+    "ontogenesis_scaffold",
+    "ibm_glo_bindings",
+    "queries"
+  ],
+  "properties": {
+    "generated_projection": {
+      "type": "object",
+      "required": ["id", "version", "schema_ref", "generator", "sources"],
+      "properties": {
+        "id": {"const": "github-footprint-itops-generated"},
+        "version": {"type": "string"},
+        "schema_ref": {"const": "schemas/github-footprint-itops-generated.schema.json"},
+        "generator": {"const": "tools/generate_github_footprint_itops_projection.py"},
+        "sources": {
+          "type": "object",
+          "required": ["sociosphere", "ontogenesis", "integration_planes"],
+          "properties": {
+            "sociosphere": {"const": "SocioProphet/sociosphere"},
+            "ontogenesis": {"const": "SocioProphet/ontogenesis"},
+            "integration_planes": {"const": "source_inputs/integration-planes/ops-integration-map.v0.json"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "repositories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "layer", "role", "description", "topics", "binds"],
+        "properties": {
+          "id": {"type": "string"},
+          "layer": {"type": "string"},
+          "role": {"type": "string"},
+          "description": {"type": "string"},
+          "topics": {"type": "array", "items": {"type": "string"}},
+          "binds": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "namespace_bindings": {"type": "array"},
+    "dependencies": {"type": "array"},
+    "surfaces": {"type": "array"},
+    "integration_planes": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "status", "repo", "operations_role", "binds", "source_evidence"],
+        "properties": {
+          "id": {"type": "string"},
+          "kind": {"type": "string"},
+          "status": {"type": "string"},
+          "repo": {"type": ["string", "null"]},
+          "operations_role": {"type": "string"},
+          "binds": {"type": "array", "items": {"type": "string"}},
+          "source_evidence": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "ontogenesis_scaffold": {"type": "object"},
+    "ibm_glo_bindings": {"type": "object"},
+    "queries": {"type": "array"}
+  },
+  "additionalProperties": false
+}
