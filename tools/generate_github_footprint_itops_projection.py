@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import sys
 from pathlib import Path
@@ -260,7 +261,14 @@ def main() -> int:
         return 1
     current = OUTPUT.read_text(encoding="utf-8")
     if current != rendered:
+        diff = difflib.unified_diff(
+            current.splitlines(keepends=True),
+            rendered.splitlines(keepends=True),
+            fromfile=str(OUTPUT),
+            tofile="generated",
+        )
         print(f"ERROR: generated projection is stale: {OUTPUT}; run with --write", file=sys.stderr)
+        print("".join(diff), file=sys.stderr)
         return 1
     print("OK: generated GitHub footprint ITOPS projection is current")
     return 0
