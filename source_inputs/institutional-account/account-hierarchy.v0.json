@@ -1,0 +1,96 @@
+{
+  "snapshot": {
+    "id": "institutional-account-hierarchy",
+    "version": "0.1.0",
+    "captured_for": "github-footprint-itops-expansion",
+    "source_mode": "manual-seed-from-observed-cloud-hierarchy",
+    "source_notes": [
+      "Initial seed derived from observed socioprophet.ai cloud-resource hierarchy and discussion context.",
+      "This is not a live cloud API export.",
+      "Provider IDs, IAM bindings, billing bindings, DNS records, and monitoring bindings remain pending live collection."
+    ]
+  },
+  "organization": {
+    "id": "socioprophet.ai",
+    "kind": "InstitutionalOrganization",
+    "provider": "gcp",
+    "display_name": "socioprophet.ai",
+    "canonical_twin_id": "sp://org/socioprophet.ai"
+  },
+  "folders": [
+    {
+      "id": "production",
+      "kind": "CloudFolder",
+      "provider": "gcp",
+      "display_name": "Production",
+      "parent": "socioprophet.ai",
+      "canonical_twin_id": "sp://gcp/folder/production"
+    },
+    {
+      "id": "shared",
+      "kind": "CloudFolder",
+      "provider": "gcp",
+      "display_name": "Shared",
+      "parent": "production",
+      "canonical_twin_id": "sp://gcp/folder/production/shared"
+    }
+  ],
+  "projects": [
+    {
+      "id": "socioprophet-web",
+      "kind": "CloudProject",
+      "provider": "gcp",
+      "display_name": "socioprophet-web-development",
+      "parent": "shared",
+      "declared_environment": "development",
+      "structural_environment": "production_shared",
+      "workload_role": "web_surface",
+      "canonical_twin_id": "sp://gcp/project/socioprophet-web",
+      "linked_repositories": ["prophet-platform"],
+      "linked_surfaces": ["documentation", "organizations", "cloud", "live"]
+    },
+    {
+      "id": "prophet-platform",
+      "kind": "CloudProject",
+      "provider": "gcp",
+      "display_name": "prophet-platform",
+      "parent": "shared",
+      "declared_environment": "production",
+      "structural_environment": "production_shared",
+      "workload_role": "platform_runtime",
+      "canonical_twin_id": "sp://gcp/project/prophet-platform",
+      "linked_repositories": ["prophet-platform", "global-devsecops-intelligence"],
+      "linked_surfaces": ["developer", "cloud", "documentation"]
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-env-conflict-socioprophet-web",
+      "kind": "EnvironmentClassificationConflict",
+      "severity": "warn",
+      "subject": "socioprophet-web",
+      "declared_environment": "development",
+      "structural_environment": "production_shared",
+      "rationale": "Project display name implies development while folder placement implies production/shared context."
+    },
+    {
+      "id": "finding-live-cloud-export-pending",
+      "kind": "LiveCloudExportPending",
+      "severity": "info",
+      "subject": "socioprophet.ai",
+      "rationale": "Initial hierarchy is a manual seed; live provider export is required before authoritative drift findings."
+    }
+  ],
+  "pending_live_bindings": [
+    "iam_policy_bindings",
+    "service_accounts",
+    "billing_accounts",
+    "dns_zones",
+    "dns_records",
+    "certificates",
+    "log_sinks",
+    "monitoring_scopes",
+    "firebase_projects",
+    "public_endpoints"
+  ]
+}
