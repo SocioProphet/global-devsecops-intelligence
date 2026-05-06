@@ -14,6 +14,7 @@ GLO_EXCERPT = ROOT / "third_party" / "ibm-itops" / "GLO_V1-profile-excerpt.ttl"
 SOCIOSPHERE_INPUT = ROOT / "source_inputs" / "sociosphere" / "repository-map.v0.json"
 ONTOGENESIS_INPUT = ROOT / "source_inputs" / "ontogenesis" / "module-map.v0.json"
 INTEGRATION_INPUT = ROOT / "source_inputs" / "integration-planes" / "ops-integration-map.v0.json"
+ACCOUNT_INPUT = ROOT / "source_inputs" / "institutional-account" / "account-hierarchy.v0.json"
 SCHEMA = ROOT / "schemas" / "github-footprint-itops-generated.schema.json"
 
 REQUIRED_FILES = [
@@ -26,6 +27,7 @@ REQUIRED_FILES = [
     SOCIOSPHERE_INPUT,
     ONTOGENESIS_INPUT,
     INTEGRATION_INPUT,
+    ACCOUNT_INPUT,
     SCHEMA,
 ]
 REQUIRED_PROFILE_TOKENS = [
@@ -83,6 +85,7 @@ REQUIRED_GENERATED_TOKENS = [
     "sociosphere: SocioProphet/sociosphere",
     "ontogenesis: SocioProphet/ontogenesis",
     "integration_planes: source_inputs/integration-planes/ops-integration-map.v0.json",
+    "institutional_account: source_inputs/institutional-account/account-hierarchy.v0.json",
     "integration_planes:",
     "id: gaia-world-model",
     "repo: SocioProphet/gaia-world-model",
@@ -96,6 +99,27 @@ REQUIRED_GENERATED_TOKENS = [
     "id: scoped-redteaming",
     "repo: null",
     "status: capability-plane-repo-pending",
+    "institutional_account_hierarchy:",
+    "id: socioprophet.ai",
+    "kind: InstitutionalOrganization",
+    "kind: CloudFolder",
+    "kind: CloudProject",
+    "id: socioprophet-web",
+    "display_name: socioprophet-web-development",
+    "declared_environment: development",
+    "structural_environment: production_shared",
+    "finding-env-conflict-socioprophet-web",
+    "EnvironmentClassificationConflict",
+    "LiveCloudExportPending",
+    "pending_live_bindings:",
+    "iam_policy_bindings",
+    "service_accounts",
+    "dns_records",
+    "firebase_projects",
+    "public_endpoints",
+    "CloudProject:",
+    "CloudFolder:",
+    "InstitutionalOrganization:",
     "id: policy-fabric",
     "namespace: workspace/registry",
     "namespace: data/ontogenesis",
@@ -116,6 +140,8 @@ REQUIRED_SMOKE_TOKENS = [
     "ibm-service-and-system-adopted",
     "Which repository is canonical source for data/ontogenesis?",
     "Which public surfaces normalize to operations and deployment topics?",
+    "Which institutional account finding captures the environment conflict?",
+    "Which live cloud bindings are still pending?",
 ]
 REQUIRED_MAPPING_TOKENS = [
     "| `Project` | rejected |",
@@ -171,10 +197,32 @@ REQUIRED_INTEGRATION_INPUT_TOKENS = [
     "capability-plane-repo-pending",
     "repo search did not locate a dedicated scoped-redteaming repository",
 ]
+REQUIRED_ACCOUNT_INPUT_TOKENS = [
+    "institutional-account-hierarchy",
+    "manual-seed-from-observed-cloud-hierarchy",
+    "socioprophet.ai",
+    "InstitutionalOrganization",
+    "CloudFolder",
+    "CloudProject",
+    "socioprophet-web-development",
+    "production_shared",
+    "EnvironmentClassificationConflict",
+    "LiveCloudExportPending",
+    "pending_live_bindings",
+    "iam_policy_bindings",
+    "service_accounts",
+    "billing_accounts",
+    "dns_records",
+    "monitoring_scopes",
+    "public_endpoints",
+]
 REQUIRED_SCHEMA_TOKENS = [
     "integration_planes",
-    "gaia-world-model",
-    "source_inputs/integration-planes/ops-integration-map.v0.json",
+    "institutional_account_hierarchy",
+    "institutional_account",
+    "source_inputs/institutional-account/account-hierarchy.v0.json",
+    "socioprophet.ai",
+    "InstitutionalOrganization",
     "github-footprint-itops-generated",
 ]
 
@@ -205,13 +253,14 @@ def main() -> int:
         require_tokens("sociosphere input", SOCIOSPHERE_INPUT.read_text(encoding="utf-8"), REQUIRED_SOCIOSPHERE_INPUT_TOKENS)
         require_tokens("ontogenesis input", ONTOGENESIS_INPUT.read_text(encoding="utf-8"), REQUIRED_ONTOGENESIS_INPUT_TOKENS)
         require_tokens("integration input", INTEGRATION_INPUT.read_text(encoding="utf-8"), REQUIRED_INTEGRATION_INPUT_TOKENS)
+        require_tokens("institutional account input", ACCOUNT_INPUT.read_text(encoding="utf-8"), REQUIRED_ACCOUNT_INPUT_TOKENS)
         require_tokens("generated projection schema", SCHEMA.read_text(encoding="utf-8"), REQUIRED_SCHEMA_TOKENS)
     except FileNotFoundError as exc:
         return fail(f"missing required file: {exc.args[0]}")
     except Exception as exc:  # noqa: BLE001 - CLI validator should surface direct error text
         return fail(str(exc))
 
-    print("OK: validated GitHub footprint ITOPS profile, generated projection, integration planes, sample, smoke checks, mapping ledger, and IBM GLO excerpt")
+    print("OK: validated GitHub footprint ITOPS profile, generated projection, integration planes, institutional account hierarchy, sample, smoke checks, mapping ledger, and IBM GLO excerpt")
     return 0
 
 
