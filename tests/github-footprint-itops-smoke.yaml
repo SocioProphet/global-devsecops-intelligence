@@ -75,6 +75,26 @@ smoke_tests:
         OperationalService:
           maps_to_glo: [Service]
 
+  - id: institutional-account-hierarchy-present
+    description: The generated projection must include the institutional account hierarchy.
+    expect:
+      generated.institutional_account_hierarchy.organization.id: socioprophet.ai
+
+  - id: institutional-account-env-conflict-present
+    description: The generated projection must preserve the observed environment-classification conflict.
+    expect:
+      generated.institutional_account_hierarchy.findings.kind: EnvironmentClassificationConflict
+
+  - id: institutional-account-live-bindings-pending
+    description: The generated projection must show that authoritative live cloud bindings remain pending.
+    expect_contains:
+      generated.institutional_account_hierarchy.pending_live_bindings:
+        - iam_policy_bindings
+        - service_accounts
+        - dns_records
+        - firebase_projects
+        - public_endpoints
+
 queries:
   - id: q1
     question: Which repository is canonical source for data/ontogenesis?
@@ -105,3 +125,22 @@ queries:
         - Document
         - WorkProduct
         - provenance
+
+  - id: q5
+    question: Which institutional account finding captures the environment conflict?
+    expected_answer_shape:
+      finding_id: finding-env-conflict-socioprophet-web
+      kind: EnvironmentClassificationConflict
+      subject: socioprophet-web
+
+  - id: q6
+    question: Which live cloud bindings are still pending?
+    expected_answer_shape:
+      pending_live_bindings:
+        - iam_policy_bindings
+        - service_accounts
+        - billing_accounts
+        - dns_records
+        - monitoring_scopes
+        - firebase_projects
+        - public_endpoints
