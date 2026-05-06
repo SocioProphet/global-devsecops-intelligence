@@ -40,6 +40,14 @@ make test
 
 A change is not considered operationally validated until those commands pass in CI or an equivalent locally captured validation transcript is attached to the review evidence.
 
+## Freshness rule
+
+The generated GitHub-footprint ITOPS projection must match `tools/generate_github_footprint_itops_projection.py` and the pinned `source_inputs/` snapshots. If CI reports the projection as stale, regenerate it with:
+
+```bash
+python3 tools/generate_github_footprint_itops_projection.py --write
+```
+
 ## Current limitation
 
 This repository still uses lightweight token-based validation for parts of the generated projection. The target state is structured JSON/YAML/RDF validation with explicit dependency policy.
