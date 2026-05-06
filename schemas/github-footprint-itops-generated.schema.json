@@ -10,6 +10,7 @@
     "dependencies",
     "surfaces",
     "integration_planes",
+    "institutional_account_hierarchy",
     "ontogenesis_scaffold",
     "ibm_glo_bindings",
     "queries"
@@ -25,11 +26,12 @@
         "generator": {"const": "tools/generate_github_footprint_itops_projection.py"},
         "sources": {
           "type": "object",
-          "required": ["sociosphere", "ontogenesis", "integration_planes"],
+          "required": ["sociosphere", "ontogenesis", "integration_planes", "institutional_account"],
           "properties": {
             "sociosphere": {"const": "SocioProphet/sociosphere"},
             "ontogenesis": {"const": "SocioProphet/ontogenesis"},
-            "integration_planes": {"const": "source_inputs/integration-planes/ops-integration-map.v0.json"}
+            "integration_planes": {"const": "source_inputs/integration-planes/ops-integration-map.v0.json"},
+            "institutional_account": {"const": "source_inputs/institutional-account/account-hierarchy.v0.json"}
           },
           "additionalProperties": false
         }
@@ -73,6 +75,45 @@
         },
         "additionalProperties": false
       }
+    },
+    "institutional_account_hierarchy": {
+      "type": "object",
+      "required": ["organization", "folders", "projects", "findings", "pending_live_bindings"],
+      "properties": {
+        "organization": {
+          "type": "object",
+          "required": ["id", "kind", "provider", "display_name", "canonical_twin_id"],
+          "properties": {
+            "id": {"const": "socioprophet.ai"},
+            "kind": {"const": "InstitutionalOrganization"},
+            "provider": {"const": "gcp"},
+            "display_name": {"type": "string"},
+            "canonical_twin_id": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "folders": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "object"}
+        },
+        "projects": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "object"}
+        },
+        "findings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "object"}
+        },
+        "pending_live_bindings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
     },
     "ontogenesis_scaffold": {"type": "object"},
     "ibm_glo_bindings": {"type": "object"},
