@@ -33,7 +33,7 @@ This repository defines the **operations-domain specialization** for DevSecOps /
 - External seed ontology imports relevant to the operations-domain profile (currently IBM ITOPS)
 - Mapping layers from external ontologies into the operations-domain profile
 - Evidence-oriented operational graph projections scoped to this profile
-- GitHub footprint alignment against workspace topology, ontology scaffolding, and website surface taxonomy
+- GitHub footprint alignment against workspace topology, ontology scaffolding, website surface taxonomy, operations integration planes, and institutional account hierarchy
 - operational exhaust fusion across CI/CD, runtime, policy/evidence, market/execution, and trader-agent lanes
 
 This repository does **not** own canonical platform storage standards, canonical wire contracts, or the sole canonical platform ontology / broader knowledge semantics.
@@ -58,7 +58,8 @@ global-devsecops-intelligence/
 │   ├── docs/glossary/          # Terminology glossary
 │   └── modules/openentitymap/  # Mapping DSL schema
 ├── profiles/                   # Machine-readable domain profiles
-├── source_inputs/              # Pinned upstream source extracts for deterministic generators
+├── schemas/                    # Generated-projection schema contracts
+├── source_inputs/              # Pinned upstream/manual source extracts for deterministic generators
 ├── tests/                      # Profile smoke checks and pytest wrappers
 ├── third_party/
 │   └── ibm-itops/              # IBM ITOPS external seed import (metadata + curated excerpt)
@@ -107,14 +108,17 @@ platform standards → knowledge / ontology standards → global-devsecops-intel
 |---|---|---|
 | Repository inventory / role ontology / dependency graph | `sociosphere` | active, pinned extract under `source_inputs/sociosphere/` |
 | Provenance / policy / ontology-alignment scaffold | `ontogenesis` | active, pinned extract under `source_inputs/ontogenesis/` |
+| Operations integration planes | GAIA World Model, Meshrush, Sherlock, SCOPED red-teaming | active/manual source extract under `source_inputs/integration-planes/` |
+| Institutional account hierarchy | `socioprophet.ai` cloud-account hierarchy seed | manual seed under `source_inputs/institutional-account/`; live export pending |
 | Normalized operational taxonomy for surfaces, workflow states, and capability routing | website surface inventory + public docs | active |
 | Machine-readable profile | `profiles/github-footprint-itops-expansion.yaml` | draft `v0.1.0` |
 | Example instance pack | `examples/github-footprint-itops-sample.yaml` | draft `v0.1.0` |
 | Generated projection | `examples/github-footprint-itops-generated.yaml` | generated from `source_inputs/` |
+| Generated-projection schema | `schemas/github-footprint-itops-generated.schema.json` | active contract |
 | Generator | `tools/generate_github_footprint_itops_projection.py` | checked by `make validate` |
 | Smoke checks | `tests/github-footprint-itops-smoke.yaml` + `tools/validate_github_footprint_itops.py` | active |
 
-See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/github-footprint-itops-alignment.md) for the full integration model.
+See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/github-footprint-itops-alignment.md) and [`docs/architecture/institutional-account-hierarchy-itops.md`](docs/architecture/institutional-account-hierarchy-itops.md) for the integration model.
 
 ### Operational-exhaust fusion
 
@@ -133,13 +137,15 @@ See [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/
 | [`docs/vision/ai4it-home-rewrite.md`](docs/vision/ai4it-home-rewrite.md) | AI4IT / AIOps capability statement |
 | [`docs/architecture/api-interactions-decision.md`](docs/architecture/api-interactions-decision.md) | CQRS-style API interactions design |
 | [`docs/architecture/github-footprint-itops-alignment.md`](docs/architecture/github-footprint-itops-alignment.md) | GitHub footprint and website-surface alignment |
+| [`docs/architecture/institutional-account-hierarchy-itops.md`](docs/architecture/institutional-account-hierarchy-itops.md) | Institutional account hierarchy semantics, findings, and live-binding obligations |
 | [`docs/devops/devops-process-open.md`](docs/devops/devops-process-open.md) | DevOps process and branching policy |
 | [`docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md`](docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md) | ADR 0001: ops-domain profile and external seed boundary |
 | [`docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md`](docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md) | ADR 0002: operational exhaust and trader-agent fusion boundary |
 | [`docs/devops/operational-exhaust-and-trader-agent-fusion.md`](docs/devops/operational-exhaust-and-trader-agent-fusion.md) | Ops-domain fusion model for platform and trader-agent exhaust |
 | [`profiles/github-footprint-itops-expansion.yaml`](profiles/github-footprint-itops-expansion.yaml) | Machine-readable GitHub footprint ITOPS profile |
 | [`examples/github-footprint-itops-sample.yaml`](examples/github-footprint-itops-sample.yaml) | Hand-authored GitHub footprint ITOPS instance pack |
-| [`examples/github-footprint-itops-generated.yaml`](examples/github-footprint-itops-generated.yaml) | Generated projection from pinned `sociosphere` and `ontogenesis` source inputs |
+| [`examples/github-footprint-itops-generated.yaml`](examples/github-footprint-itops-generated.yaml) | Generated projection from pinned source inputs, integration planes, and institutional account hierarchy |
+| [`schemas/github-footprint-itops-generated.schema.json`](schemas/github-footprint-itops-generated.schema.json) | Schema contract for the generated GitHub-footprint ITOPS projection |
 | [`profiles/operational-exhaust-fusion-profile.v0.yaml`](profiles/operational-exhaust-fusion-profile.v0.yaml) | Machine-readable operational exhaust fusion profile |
 | [`mappings/ibm-itops-glo-to-ops-domain.md`](mappings/ibm-itops-glo-to-ops-domain.md) | IBM ITOPS GLO → ops-domain mapping ledger |
 | [`open-ai4it-spec/docs/glossary/TERMS.md`](open-ai4it-spec/docs/glossary/TERMS.md) | Terminology glossary |
@@ -163,7 +169,7 @@ The validation target currently covers:
 - service-desk metrics examples
 - model-fabric release-readiness scorecards
 - generated GitHub-footprint projection freshness
-- GitHub-footprint ITOPS profile, generated projection, sample, smoke checks, mapping ledger, source inputs, and IBM GLO profile excerpt
+- GitHub-footprint ITOPS profile, generated projection, integration planes, institutional account hierarchy, sample, smoke checks, mapping ledger, source inputs, schema, and IBM GLO profile excerpt
 
 Regenerate the GitHub-footprint projection from pinned source inputs:
 
