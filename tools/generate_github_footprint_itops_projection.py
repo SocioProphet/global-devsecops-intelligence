@@ -10,7 +10,9 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SOCIOSPHERE = ROOT / "source_inputs" / "sociosphere" / "repository-map.v0.json"
 ONTOGENESIS = ROOT / "source_inputs" / "ontogenesis" / "module-map.v0.json"
+INTEGRATION_PLANES = ROOT / "source_inputs" / "integration-planes" / "ops-integration-map.v0.json"
 OUTPUT = ROOT / "examples" / "github-footprint-itops-generated.yaml"
+SCHEMA_REF = "schemas/github-footprint-itops-generated.schema.json"
 
 SURFACES = [
     ("organizations", "deployment", ["deployment", "institutions", "governance", "trust", "capability"]),
@@ -49,6 +51,8 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def yaml_scalar(value: Any) -> str:
+    if value is None:
+        return "null"
     if isinstance(value, str):
         if not value:
             return '""'
@@ -64,16 +68,38 @@ def yaml_list(values: list[str]) -> str:
     return "[" + ", ".join(values) + "]"
 
 
-def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any]) -> str:
+def append_mapping(lines: list[str], mapping: dict[str, Any], indent: str) -> None:
+    for key, value in mapping.items():
+        if isinstance(value, list):
+            if all(isinstance(item, str) for item in value):
+                lines.append(f"{indent}{key}: {yaml_list(value)}")
+            else:
+                lines.append(f"{indent}{key}:")
+                for item in value:
+                    if isinstance(item, dict):
+                        first = True
+                        for item_key, item_value in item.items():
+                            prefix = "- " if first else "  "
+                            lines.append(f"{indent}  {prefix}{item_key}: {yaml_scalar(item_value)}")
+                            first = False
+                    else:
+                        lines.append(f"{indent}  - {yaml_scalar(item)}")
+        else:
+            lines.append(f"{indent}{key}: {yaml_scalar(value)}")
+
+
+def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any], integration_map: dict[str, Any]) -> str:
     lines: list[str] = []
     lines.extend([
         "generated_projection:",
         "  id: github-footprint-itops-generated",
         "  version: 0.1.0",
+        f"  schema_ref: {SCHEMA_REF}",
         "  generator: tools/generate_github_footprint_itops_projection.py",
         "  sources:",
         f"    sociosphere: {sociosphere['snapshot']['source_repo']}",
         f"    ontogenesis: {ontogenesis['snapshot']['source_repo']}",
+        "    integration_planes: source_inputs/integration-planes/ops-integration-map.v0.json",
         "",
         "repositories:",
     ])
@@ -113,6 +139,18 @@ def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any]) 
             f"    normalized_topics: {yaml_list(topics)}",
         ])
 
+    lines.extend(["", "integration_planes:"])
+    for plane in integration_map["integration_planes"]:
+        lines.extend([
+            f"  - id: {plane['id']}",
+            f"    kind: {plane['kind']}",
+            f"    status: {plane['status']}",
+            f"    repo: {yaml_scalar(plane['repo'])}",
+            f"    operations_role: {json.dumps(plane['operations_role'])}",
+            f"    binds: {yaml_list(plane['binds'])}",
+            f"    source_evidence: {yaml_list(plane['source_evidence'])}",
+        ])
+
     lines.extend(["", "ontogenesis_scaffold:"])
     lines.extend([f"  capabilities: {yaml_list(ontogenesis['capabilities'])}"])
     lines.append("  modules:")
@@ -140,6 +178,10 @@ def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any]) 
         "    answer: [cloud, live]",
         "  - id: workflow-state-repositories",
         "    answer: [global-devsecops-intelligence, agentplane]",
+        "  - id: security-integration-planes",
+        "    answer: [sherlock, scoped-redteaming]",
+        "  - id: world-model-and-graph-runtime-planes",
+        "    answer: [gaia-world-model, meshrush]",
     ])
     return "\n".join(lines) + "\n"
 
@@ -152,7 +194,8 @@ def main() -> int:
     try:
         sociosphere = load_json(SOCIOSPHERE)
         ontogenesis = load_json(ONTOGENESIS)
-        rendered = render_projection(sociosphere, ontogenesis)
+        integration_map = load_json(INTEGRATION_PLANES)
+        rendered = render_projection(sociosphere, ontogenesis, integration_map)
     except Exception as exc:  # noqa: BLE001 - CLI utility should surface direct error text
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
