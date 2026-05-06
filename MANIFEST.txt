@@ -14,6 +14,7 @@ docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md
 docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md
 docs/architecture/api-interactions-decision.md
 docs/architecture/github-footprint-itops-alignment.md
+docs/architecture/institutional-account-hierarchy-itops.md
 docs/devops/devops-process-open.md
 docs/devops/operational-exhaust-and-trader-agent-fusion.md
 docs/vision/ai4it-home-rewrite.md
@@ -30,7 +31,10 @@ open-ai4it-spec/docs/glossary/TERMS.md
 open-ai4it-spec/modules/openentitymap/mapping.schema.json
 profiles/github-footprint-itops-expansion.yaml
 profiles/operational-exhaust-fusion-profile.v0.yaml
+schemas/github-footprint-itops-generated.schema.json
 source_inputs/README.md
+source_inputs/institutional-account/account-hierarchy.v0.json
+source_inputs/integration-planes/ops-integration-map.v0.json
 source_inputs/ontogenesis/module-map.v0.json
 source_inputs/sociosphere/repository-map.v0.json
 tests/github-footprint-itops-smoke.yaml
