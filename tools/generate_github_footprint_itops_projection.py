@@ -61,7 +61,7 @@ def yaml_scalar(value: Any) -> str:
     if isinstance(value, str):
         if not value:
             return '""'
-        if any(ch in value for ch in [":", "#", "[", "]", "{", "}", ",", "/"]):
+        if any(ch in value for ch in [":", "#", "[", "]", "{", "}", ","]):
             return json.dumps(value)
         return value
     if isinstance(value, bool):
