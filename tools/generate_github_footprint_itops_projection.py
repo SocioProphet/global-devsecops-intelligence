@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOCIOSPHERE = ROOT / "source_inputs" / "sociosphere" / "repository-map.v0.json"
 ONTOGENESIS = ROOT / "source_inputs" / "ontogenesis" / "module-map.v0.json"
 INTEGRATION_PLANES = ROOT / "source_inputs" / "integration-planes" / "ops-integration-map.v0.json"
+ACCOUNT_HIERARCHY = ROOT / "source_inputs" / "institutional-account" / "account-hierarchy.v0.json"
 OUTPUT = ROOT / "examples" / "github-footprint-itops-generated.yaml"
 SCHEMA_REF = "schemas/github-footprint-itops-generated.schema.json"
 
@@ -41,6 +42,9 @@ IBM_GLO_BINDINGS = {
     "WebsiteSurface": ["Service", "Document"],
     "WorkflowState": ["State"],
     "EvidenceArtifact": ["Document", "WorkProduct", "provenance"],
+    "InstitutionalOrganization": ["Organization", "Company"],
+    "CloudProject": ["System", "Service"],
+    "CloudFolder": ["Organization"],
 }
 
 
@@ -56,7 +60,7 @@ def yaml_scalar(value: Any) -> str:
     if isinstance(value, str):
         if not value:
             return '""'
-        if any(ch in value for ch in [":", "#", "[", "]", "{", "}", ","]):
+        if any(ch in value for ch in [":", "#", "[", "]", "{", "}", ",", "/"]):
             return json.dumps(value)
         return value
     if isinstance(value, bool):
@@ -68,7 +72,65 @@ def yaml_list(values: list[str]) -> str:
     return "[" + ", ".join(json.dumps(value) for value in values) + "]"
 
 
-def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any], integration_map: dict[str, Any]) -> str:
+def render_account_hierarchy(lines: list[str], account_hierarchy: dict[str, Any]) -> None:
+    org = account_hierarchy["organization"]
+    lines.extend([
+        "",
+        "institutional_account_hierarchy:",
+        "  organization:",
+        f"    id: {yaml_scalar(org['id'])}",
+        f"    kind: {yaml_scalar(org['kind'])}",
+        f"    provider: {yaml_scalar(org['provider'])}",
+        f"    display_name: {yaml_scalar(org['display_name'])}",
+        f"    canonical_twin_id: {yaml_scalar(org['canonical_twin_id'])}",
+        "  folders:",
+    ])
+    for folder in account_hierarchy["folders"]:
+        lines.extend([
+            f"    - id: {yaml_scalar(folder['id'])}",
+            f"      kind: {yaml_scalar(folder['kind'])}",
+            f"      provider: {yaml_scalar(folder['provider'])}",
+            f"      display_name: {yaml_scalar(folder['display_name'])}",
+            f"      parent: {yaml_scalar(folder['parent'])}",
+            f"      canonical_twin_id: {yaml_scalar(folder['canonical_twin_id'])}",
+        ])
+    lines.append("  projects:")
+    for project in account_hierarchy["projects"]:
+        lines.extend([
+            f"    - id: {yaml_scalar(project['id'])}",
+            f"      kind: {yaml_scalar(project['kind'])}",
+            f"      provider: {yaml_scalar(project['provider'])}",
+            f"      display_name: {yaml_scalar(project['display_name'])}",
+            f"      parent: {yaml_scalar(project['parent'])}",
+            f"      declared_environment: {yaml_scalar(project['declared_environment'])}",
+            f"      structural_environment: {yaml_scalar(project['structural_environment'])}",
+            f"      workload_role: {yaml_scalar(project['workload_role'])}",
+            f"      canonical_twin_id: {yaml_scalar(project['canonical_twin_id'])}",
+            f"      linked_repositories: {yaml_list(project['linked_repositories'])}",
+            f"      linked_surfaces: {yaml_list(project['linked_surfaces'])}",
+        ])
+    lines.append("  findings:")
+    for finding in account_hierarchy["findings"]:
+        lines.extend([
+            f"    - id: {yaml_scalar(finding['id'])}",
+            f"      kind: {yaml_scalar(finding['kind'])}",
+            f"      severity: {yaml_scalar(finding['severity'])}",
+            f"      subject: {yaml_scalar(finding['subject'])}",
+        ])
+        if "declared_environment" in finding:
+            lines.append(f"      declared_environment: {yaml_scalar(finding['declared_environment'])}")
+        if "structural_environment" in finding:
+            lines.append(f"      structural_environment: {yaml_scalar(finding['structural_environment'])}")
+        lines.append(f"      rationale: {json.dumps(finding['rationale'])}")
+    lines.append(f"  pending_live_bindings: {yaml_list(account_hierarchy['pending_live_bindings'])}")
+
+
+def render_projection(
+    sociosphere: dict[str, Any],
+    ontogenesis: dict[str, Any],
+    integration_map: dict[str, Any],
+    account_hierarchy: dict[str, Any],
+) -> str:
     lines: list[str] = []
     lines.extend([
         "generated_projection:",
@@ -80,6 +142,7 @@ def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any], 
         f"    sociosphere: {sociosphere['snapshot']['source_repo']}",
         f"    ontogenesis: {ontogenesis['snapshot']['source_repo']}",
         "    integration_planes: source_inputs/integration-planes/ops-integration-map.v0.json",
+        "    institutional_account: source_inputs/institutional-account/account-hierarchy.v0.json",
         "",
         "repositories:",
     ])
@@ -131,6 +194,8 @@ def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any], 
             f"    source_evidence: {yaml_list(plane['source_evidence'])}",
         ])
 
+    render_account_hierarchy(lines, account_hierarchy)
+
     lines.extend(["", "ontogenesis_scaffold:"])
     lines.extend([f"  capabilities: {yaml_list(ontogenesis['capabilities'])}"])
     lines.append("  modules:")
@@ -162,6 +227,10 @@ def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any], 
         "    answer: [\"sherlock\", \"scoped-redteaming\"]",
         "  - id: world-model-and-graph-runtime-planes",
         "    answer: [\"gaia-world-model\", \"meshrush\"]",
+        "  - id: institutional-account-environment-conflicts",
+        "    answer: [\"finding-env-conflict-socioprophet-web\"]",
+        "  - id: institutional-account-cloud-surface-projects",
+        "    answer: [\"socioprophet-web\", \"prophet-platform\"]",
     ])
     return "\n".join(lines) + "\n"
 
@@ -175,7 +244,8 @@ def main() -> int:
         sociosphere = load_json(SOCIOSPHERE)
         ontogenesis = load_json(ONTOGENESIS)
         integration_map = load_json(INTEGRATION_PLANES)
-        rendered = render_projection(sociosphere, ontogenesis, integration_map)
+        account_hierarchy = load_json(ACCOUNT_HIERARCHY)
+        rendered = render_projection(sociosphere, ontogenesis, integration_map, account_hierarchy)
     except Exception as exc:  # noqa: BLE001 - CLI utility should surface direct error text
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
