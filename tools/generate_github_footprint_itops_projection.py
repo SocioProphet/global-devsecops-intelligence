@@ -65,27 +65,7 @@ def yaml_scalar(value: Any) -> str:
 
 
 def yaml_list(values: list[str]) -> str:
-    return "[" + ", ".join(values) + "]"
-
-
-def append_mapping(lines: list[str], mapping: dict[str, Any], indent: str) -> None:
-    for key, value in mapping.items():
-        if isinstance(value, list):
-            if all(isinstance(item, str) for item in value):
-                lines.append(f"{indent}{key}: {yaml_list(value)}")
-            else:
-                lines.append(f"{indent}{key}:")
-                for item in value:
-                    if isinstance(item, dict):
-                        first = True
-                        for item_key, item_value in item.items():
-                            prefix = "- " if first else "  "
-                            lines.append(f"{indent}  {prefix}{item_key}: {yaml_scalar(item_value)}")
-                            first = False
-                    else:
-                        lines.append(f"{indent}  - {yaml_scalar(item)}")
-        else:
-            lines.append(f"{indent}{key}: {yaml_scalar(value)}")
+    return "[" + ", ".join(json.dumps(value) for value in values) + "]"
 
 
 def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any], integration_map: dict[str, Any]) -> str:
@@ -175,13 +155,13 @@ def render_projection(sociosphere: dict[str, Any], ontogenesis: dict[str, Any], 
         "  - id: canonical-source-for-ontogenesis",
         "    answer: ontogenesis",
         "  - id: operation-surfaces",
-        "    answer: [cloud, live]",
+        "    answer: [\"cloud\", \"live\"]",
         "  - id: workflow-state-repositories",
-        "    answer: [global-devsecops-intelligence, agentplane]",
+        "    answer: [\"global-devsecops-intelligence\", \"agentplane\"]",
         "  - id: security-integration-planes",
-        "    answer: [sherlock, scoped-redteaming]",
+        "    answer: [\"sherlock\", \"scoped-redteaming\"]",
         "  - id: world-model-and-graph-runtime-planes",
-        "    answer: [gaia-world-model, meshrush]",
+        "    answer: [\"gaia-world-model\", \"meshrush\"]",
     ])
     return "\n".join(lines) + "\n"
 
