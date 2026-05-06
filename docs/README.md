@@ -5,7 +5,8 @@ This directory contains the operations-domain profile documentation for `global-
 ## Architecture
 
 - [`architecture/api-interactions-decision.md`](architecture/api-interactions-decision.md) — CQRS-style query/command interaction model.
-- [`architecture/github-footprint-itops-alignment.md`](architecture/github-footprint-itops-alignment.md) — GitHub footprint, website surface, IBM ITOPS, and ontogenesis alignment model.
+- [`architecture/github-footprint-itops-alignment.md`](architecture/github-footprint-itops-alignment.md) — GitHub footprint, website surface, IBM ITOPS, ontogenesis, integration-plane, and institutional-account alignment model.
+- [`architecture/institutional-account-hierarchy-itops.md`](architecture/institutional-account-hierarchy-itops.md) — institutional organization, cloud-folder, cloud-project, finding, and pending live-binding semantics for the ITOPS projection.
 
 ## ADRs
 
@@ -28,11 +29,14 @@ This directory contains the operations-domain profile documentation for `global-
 - [`../mappings/ibm-itops-glo-to-ops-domain.md`](../mappings/ibm-itops-glo-to-ops-domain.md)
 - [`../examples/github-footprint-itops-sample.yaml`](../examples/github-footprint-itops-sample.yaml)
 - [`../examples/github-footprint-itops-generated.yaml`](../examples/github-footprint-itops-generated.yaml)
+- [`../schemas/github-footprint-itops-generated.schema.json`](../schemas/github-footprint-itops-generated.schema.json)
 - [`../source_inputs/README.md`](../source_inputs/README.md)
 - [`../source_inputs/sociosphere/repository-map.v0.json`](../source_inputs/sociosphere/repository-map.v0.json)
 - [`../source_inputs/ontogenesis/module-map.v0.json`](../source_inputs/ontogenesis/module-map.v0.json)
+- [`../source_inputs/integration-planes/ops-integration-map.v0.json`](../source_inputs/integration-planes/ops-integration-map.v0.json)
+- [`../source_inputs/institutional-account/account-hierarchy.v0.json`](../source_inputs/institutional-account/account-hierarchy.v0.json)
 
 ## Generator and validation entrypoints
 
 - [`../tools/generate_github_footprint_itops_projection.py`](../tools/generate_github_footprint_itops_projection.py) — deterministic projection generator from pinned source inputs.
-- [`../tools/validate_github_footprint_itops.py`](../tools/validate_github_footprint_itops.py) — local validation for the profile, generated projection, sample, smoke checks, mapping ledger, source inputs, and IBM GLO excerpt.
+- [`../tools/validate_github_footprint_itops.py`](../tools/validate_github_footprint_itops.py) — local validation for the profile, generated projection, integration planes, institutional account hierarchy, sample, smoke checks, mapping ledger, source inputs, schema, and IBM GLO excerpt.
