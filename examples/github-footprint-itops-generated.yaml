@@ -1,54 +1,56 @@
 generated_projection:
   id: github-footprint-itops-generated
   version: 0.1.0
+  schema_ref: schemas/github-footprint-itops-generated.schema.json
   generator: tools/generate_github_footprint_itops_projection.py
   sources:
     sociosphere: SocioProphet/sociosphere
     ontogenesis: SocioProphet/ontogenesis
+    integration_planes: source_inputs/integration-planes/ops-integration-map.v0.json
 
 repositories:
   - id: sociosphere
     layer: control-plane
     role: orchestrator
     description: "Workspace controller, standards hub, and canonical repository registry."
-    topics: [workspace, orchestrator, registry, governance]
-    binds: [RepositoryArtifact, DependencyEdge, CanonicalSourceNamespace]
+    topics: ["workspace", "orchestrator", "registry", "governance"]
+    binds: ["RepositoryArtifact", "DependencyEdge", "CanonicalSourceNamespace"]
   - id: global-devsecops-intelligence
     layer: governance
     role: intelligence
     description: "DevSecOps intelligence surface for security, delivery, and posture visibility."
-    topics: [devsecops, intelligence, governance, security]
-    binds: [WebsiteSurface, WorkflowState, CapabilityType, ProviderConnectionState, EvidenceArtifact]
+    topics: ["devsecops", "intelligence", "governance", "security"]
+    binds: ["WebsiteSurface", "WorkflowState", "CapabilityType", "ProviderConnectionState", "EvidenceArtifact"]
   - id: ontogenesis
     layer: ontology
     role: ontology
     description: "Auditable ontology engineering framework for RDF/OWL/JSON-LD assets."
-    topics: [ontology, rdf, owl, shacl, json-ld, governance]
-    binds: [EvidenceArtifact]
+    topics: ["ontology", "rdf", "owl", "shacl", "json-ld", "governance"]
+    binds: ["EvidenceArtifact"]
   - id: prophet-platform
     layer: core-platform
     role: platform
     description: "Core prophet platform services and APIs."
-    topics: [platform, api, services, runtime]
-    binds: [RuntimeSystem, OperationalService]
+    topics: ["platform", "api", "services", "runtime"]
+    binds: ["RuntimeSystem", "OperationalService"]
   - id: agentplane
     layer: execution-plane
     role: execution-plane
     description: "Execution runtime plane for orchestrated task or agent workloads."
-    topics: [agent, execution, workflow, evidence]
-    binds: [WorkflowState, EvidenceArtifact, CapabilityType]
+    topics: ["agent", "execution", "workflow", "evidence"]
+    binds: ["WorkflowState", "EvidenceArtifact", "CapabilityType"]
   - id: regis-entity-graph
     layer: identity
     role: knowledge-graph
     description: "Entity graph for governance actors, roles, identities, and relationships."
-    topics: [identity, entity-graph, governance, relationships]
-    binds: [CanonicalSourceNamespace, EvidenceArtifact]
+    topics: ["identity", "entity-graph", "governance", "relationships"]
+    binds: ["CanonicalSourceNamespace", "EvidenceArtifact"]
   - id: policy-fabric
     layer: governance
     role: standards
     description: "Policy-governed data protection control repo for authored policies and validation evidence."
-    topics: [policy, governance, privacy, validation]
-    binds: [EvidenceArtifact]
+    topics: ["policy", "governance", "privacy", "validation"]
+    binds: ["EvidenceArtifact"]
 
 namespace_bindings:
   - namespace: workspace-controller
@@ -87,28 +89,58 @@ dependencies:
 surfaces:
   - id: organizations
     category: deployment
-    normalized_topics: [deployment, institutions, governance, trust, capability]
+    normalized_topics: ["deployment", "institutions", "governance", "trust", "capability"]
   - id: documentation
     category: docs
-    normalized_topics: [architecture, reference, trust, platform, governance]
+    normalized_topics: ["architecture", "reference", "trust", "platform", "governance"]
   - id: ai
     category: technical
-    normalized_topics: [intelligence, platform, automation, builders, trust]
+    normalized_topics: ["intelligence", "platform", "automation", "builders", "trust"]
   - id: developer
     category: technical
-    normalized_topics: [platform, builders, integration, capability, apis]
+    normalized_topics: ["platform", "builders", "integration", "capability", "apis"]
   - id: cloud
     category: technical
-    normalized_topics: [platform, operations, deployment, trust, hosting]
+    normalized_topics: ["platform", "operations", "deployment", "trust", "hosting"]
   - id: live
     category: technical
-    normalized_topics: [platform, operations, deployment, signal, demonstration]
+    normalized_topics: ["platform", "operations", "deployment", "signal", "demonstration"]
   - id: digital_trust
     category: trust
-    normalized_topics: [trust, governance, identity, platform, public_positioning]
+    normalized_topics: ["trust", "governance", "identity", "platform", "public_positioning"]
+
+integration_planes:
+  - id: gaia-world-model
+    kind: world-model
+    status: active
+    repo: SocioProphet/gaia-world-model
+    operations_role: "World-model and action-framework integration spine for observe, audit, plan, and actuate loops."
+    binds: ["RuntimeSystem", "OperationalService", "EvidenceArtifact", "PolicyDecision", "WorkflowState"]
+    source_evidence: ["SocioProphet/gaia-world-model README.md", "gaia/ontology/ canonical entrypoints", "gaia/cv/ provenance and manifest discipline"]
+  - id: meshrush
+    kind: graph-agent-runtime
+    status: active
+    repo: SocioProphet/meshrush
+    operations_role: "Graph-operating runtime for autonomous agents over typed hypergraph world-model views."
+    binds: ["RuntimeSystem", "OperationalService", "DependencyEdge", "WorkflowState", "EvidenceArtifact"]
+    source_evidence: ["SocioProphet/meshrush README.md", "foundation/core/omni/crystal/adapters layer model", "evidence, traces, and learning surfaces for adjacent systems"]
+  - id: sherlock
+    kind: osint-username-recon
+    status: active-legacy-upstream-derived
+    repo: SocioProphet/sherlock
+    operations_role: "OSINT username-reconnaissance capability that must be governed as scoped, authorized, and evidence-producing when used operationally."
+    binds: ["OperationalService", "CapabilityType", "EvidenceArtifact", "ProviderConnectionState", "PolicyDecision"]
+    source_evidence: ["SocioProphet/sherlock README.md", "username search across social networks", "site limitation, proxy, output, and test behavior"]
+  - id: scoped-redteaming
+    kind: governed-security-assessment-capability
+    status: capability-plane-repo-pending
+    repo: null
+    operations_role: "Authorized red-team assessment lane constrained by scope, policy, evidence capture, review, and reversibility controls."
+    binds: ["CapabilityType", "WorkflowState", "EvidenceArtifact", "PolicyDecision", "ProviderConnectionState"]
+    source_evidence: ["SocioProphet website Organizations / Authorized Cyberdefense surface", "human oversight and restricted-use boundary", "repo search did not locate a dedicated scoped-redteaming repository"]
 
 ontogenesis_scaffold:
-  capabilities: [rdf_parse_validation, shacl_gates, jsonld_roundtrip_checks, dist_build, ledger_build_and_verification, spdx_sbom_generation]
+  capabilities: ["rdf_parse_validation", "shacl_gates", "jsonld_roundtrip_checks", "dist_build", "ledger_build_and_verification", "spdx_sbom_generation"]
   modules:
     - id: Upper
       kind: ontology-layer
@@ -131,21 +163,25 @@ ontogenesis_scaffold:
     - id: catalog/registry.ttl
       kind: registry
       description: "Module index with layer, path, SemVer, and base IRI metadata."
-  useful_classes: [Provenance, EvaluationEvent, PolicyDecision, Receipt]
-  lifecycle_states: [SEEDED, NORMALIZED, LINKED, TRUSTED, ACTIONABLE, DELIVERED]
+  useful_classes: ["Provenance", "EvaluationEvent", "PolicyDecision", "Receipt"]
+  lifecycle_states: ["SEEDED", "NORMALIZED", "LINKED", "TRUSTED", "ACTIONABLE", "DELIVERED"]
 
 ibm_glo_bindings:
-  RepositoryArtifact: [Document, WorkProduct]
-  RuntimeSystem: [System, TechnicalSystem]
-  OperationalService: [Service]
-  WebsiteSurface: [Service, Document]
-  WorkflowState: [State]
-  EvidenceArtifact: [Document, WorkProduct, provenance]
+  RepositoryArtifact: ["Document", "WorkProduct"]
+  RuntimeSystem: ["System", "TechnicalSystem"]
+  OperationalService: ["Service"]
+  WebsiteSurface: ["Service", "Document"]
+  WorkflowState: ["State"]
+  EvidenceArtifact: ["Document", "WorkProduct", "provenance"]
 
 queries:
   - id: canonical-source-for-ontogenesis
     answer: ontogenesis
   - id: operation-surfaces
-    answer: [cloud, live]
+    answer: ["cloud", "live"]
   - id: workflow-state-repositories
-    answer: [global-devsecops-intelligence, agentplane]
+    answer: ["global-devsecops-intelligence", "agentplane"]
+  - id: security-integration-planes
+    answer: ["sherlock", "scoped-redteaming"]
+  - id: world-model-and-graph-runtime-planes
+    answer: ["gaia-world-model", "meshrush"]
