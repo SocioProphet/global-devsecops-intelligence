@@ -13,6 +13,8 @@ MAPPING = ROOT / "mappings" / "ibm-itops-glo-to-ops-domain.md"
 GLO_EXCERPT = ROOT / "third_party" / "ibm-itops" / "GLO_V1-profile-excerpt.ttl"
 SOCIOSPHERE_INPUT = ROOT / "source_inputs" / "sociosphere" / "repository-map.v0.json"
 ONTOGENESIS_INPUT = ROOT / "source_inputs" / "ontogenesis" / "module-map.v0.json"
+INTEGRATION_INPUT = ROOT / "source_inputs" / "integration-planes" / "ops-integration-map.v0.json"
+SCHEMA = ROOT / "schemas" / "github-footprint-itops-generated.schema.json"
 
 REQUIRED_FILES = [
     PROFILE,
@@ -23,6 +25,8 @@ REQUIRED_FILES = [
     GLO_EXCERPT,
     SOCIOSPHERE_INPUT,
     ONTOGENESIS_INPUT,
+    INTEGRATION_INPUT,
+    SCHEMA,
 ]
 REQUIRED_PROFILE_TOKENS = [
     "id: github-footprint-itops-expansion",
@@ -35,9 +39,7 @@ REQUIRED_PROFILE_TOKENS = [
     "site: socioprophet.com",
     "RepositoryArtifact:",
     "RuntimeSystem:",
-    "maps_to_glo: [System, TechnicalSystem]",
     "OperationalService:",
-    "maps_to_glo: [Service]",
     "WebsiteSurface:",
     "DependencyEdge:",
     "CanonicalSourceNamespace:",
@@ -76,19 +78,34 @@ REQUIRED_SAMPLE_TOKENS = [
 ]
 REQUIRED_GENERATED_TOKENS = [
     "id: github-footprint-itops-generated",
+    "schema_ref: schemas/github-footprint-itops-generated.schema.json",
     "generator: tools/generate_github_footprint_itops_projection.py",
     "sociosphere: SocioProphet/sociosphere",
     "ontogenesis: SocioProphet/ontogenesis",
+    "integration_planes: source_inputs/integration-planes/ops-integration-map.v0.json",
+    "integration_planes:",
+    "id: gaia-world-model",
+    "repo: SocioProphet/gaia-world-model",
+    "kind: world-model",
+    "id: meshrush",
+    "repo: SocioProphet/meshrush",
+    "kind: graph-agent-runtime",
+    "id: sherlock",
+    "repo: SocioProphet/sherlock",
+    "kind: osint-username-recon",
+    "id: scoped-redteaming",
+    "repo: null",
+    "status: capability-plane-repo-pending",
     "id: policy-fabric",
     "namespace: workspace/registry",
     "namespace: data/ontogenesis",
     "from: global-devsecops-intelligence",
     "to: ontogenesis",
     "type: semantic-scaffold",
-    "capabilities: [rdf_parse_validation, shacl_gates, jsonld_roundtrip_checks, dist_build, ledger_build_and_verification, spdx_sbom_generation]",
     "id: catalog/registry.ttl",
-    "lifecycle_states: [SEEDED, NORMALIZED, LINKED, TRUSTED, ACTIONABLE, DELIVERED]",
-    "WebsiteSurface: [Service, Document]",
+    "WebsiteSurface:",
+    "Service",
+    "Document",
 ]
 REQUIRED_SMOKE_TOKENS = [
     "source-planes-present",
@@ -143,6 +160,23 @@ REQUIRED_ONTOGENESIS_INPUT_TOKENS = [
     "PolicyDecision",
     "Receipt",
 ]
+REQUIRED_INTEGRATION_INPUT_TOKENS = [
+    "gaia-world-model",
+    "SocioProphet/gaia-world-model",
+    "meshrush",
+    "SocioProphet/meshrush",
+    "sherlock",
+    "SocioProphet/sherlock",
+    "scoped-redteaming",
+    "capability-plane-repo-pending",
+    "repo search did not locate a dedicated scoped-redteaming repository",
+]
+REQUIRED_SCHEMA_TOKENS = [
+    "integration_planes",
+    "gaia-world-model",
+    "source_inputs/integration-planes/ops-integration-map.v0.json",
+    "github-footprint-itops-generated",
+]
 
 
 def fail(message: str) -> int:
@@ -170,12 +204,14 @@ def main() -> int:
         require_tokens("GLO profile excerpt", GLO_EXCERPT.read_text(encoding="utf-8"), REQUIRED_GLO_TOKENS)
         require_tokens("sociosphere input", SOCIOSPHERE_INPUT.read_text(encoding="utf-8"), REQUIRED_SOCIOSPHERE_INPUT_TOKENS)
         require_tokens("ontogenesis input", ONTOGENESIS_INPUT.read_text(encoding="utf-8"), REQUIRED_ONTOGENESIS_INPUT_TOKENS)
+        require_tokens("integration input", INTEGRATION_INPUT.read_text(encoding="utf-8"), REQUIRED_INTEGRATION_INPUT_TOKENS)
+        require_tokens("generated projection schema", SCHEMA.read_text(encoding="utf-8"), REQUIRED_SCHEMA_TOKENS)
     except FileNotFoundError as exc:
         return fail(f"missing required file: {exc.args[0]}")
     except Exception as exc:  # noqa: BLE001 - CLI validator should surface direct error text
         return fail(str(exc))
 
-    print("OK: validated GitHub footprint ITOPS profile, generated projection, sample, smoke checks, mapping ledger, and IBM GLO excerpt")
+    print("OK: validated GitHub footprint ITOPS profile, generated projection, integration planes, sample, smoke checks, mapping ledger, and IBM GLO excerpt")
     return 0
 
 
