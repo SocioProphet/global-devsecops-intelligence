@@ -1,0 +1,128 @@
+{
+  "export_metadata": {
+    "export_id": "institutional-account-live-export-example-0001",
+    "schema_ref": "schemas/institutional-account-live-export.schema.json",
+    "provider": "gcp",
+    "exported_at": "2026-05-07T00:00:00Z",
+    "source_mode": "synthetic-example"
+  },
+  "organization": {
+    "id": "socioprophet.ai",
+    "provider": "gcp",
+    "canonical_twin_id": "sp://org/socioprophet.ai"
+  },
+  "folders": [
+    {
+      "id": "production",
+      "display_name": "Production",
+      "parent": "socioprophet.ai",
+      "canonical_twin_id": "sp://gcp/folder/production"
+    },
+    {
+      "id": "shared",
+      "display_name": "Shared",
+      "parent": "production",
+      "canonical_twin_id": "sp://gcp/folder/production/shared"
+    }
+  ],
+  "projects": [
+    {
+      "id": "socioprophet-web",
+      "display_name": "socioprophet-web-development",
+      "parent": "shared",
+      "declared_environment": "development",
+      "structural_environment": "production_shared",
+      "canonical_twin_id": "sp://gcp/project/socioprophet-web",
+      "linked_repositories": ["prophet-platform"],
+      "linked_surfaces": ["documentation", "organizations", "cloud", "live"]
+    },
+    {
+      "id": "prophet-platform",
+      "display_name": "prophet-platform",
+      "parent": "shared",
+      "declared_environment": "production",
+      "structural_environment": "production_shared",
+      "canonical_twin_id": "sp://gcp/project/prophet-platform",
+      "linked_repositories": ["prophet-platform", "global-devsecops-intelligence"],
+      "linked_surfaces": ["developer", "cloud", "documentation"]
+    }
+  ],
+  "iam_policy_bindings": [
+    {
+      "project_id": "socioprophet-web",
+      "role": "roles/viewer",
+      "member_kind": "group",
+      "member_ref": "group:ops@example.invalid",
+      "evidence_ref": "synthetic-example"
+    }
+  ],
+  "service_accounts": [
+    {
+      "project_id": "socioprophet-web",
+      "email": "web-runtime@socioprophet-web.iam.gserviceaccount.com",
+      "owner_ref": "team:web-platform",
+      "purpose": "web runtime deployment identity"
+    }
+  ],
+  "billing_accounts": [
+    {
+      "project_id": "socioprophet-web",
+      "billing_ref": "billing:redacted",
+      "status": "linked"
+    }
+  ],
+  "dns_zones": [
+    {
+      "zone_id": "socioprophet-ai-zone",
+      "domain": "socioprophet.ai",
+      "project_id": "socioprophet-web"
+    }
+  ],
+  "dns_records": [
+    {
+      "zone_id": "socioprophet-ai-zone",
+      "name": "socioprophet.ai",
+      "type": "A",
+      "target_ref": "public-endpoint:socioprophet-web"
+    }
+  ],
+  "certificates": [
+    {
+      "id": "socioprophet-ai-cert",
+      "domains": ["socioprophet.ai"],
+      "status": "active",
+      "project_id": "socioprophet-web"
+    }
+  ],
+  "log_sinks": [
+    {
+      "project_id": "socioprophet-web",
+      "sink_id": "central-security-logs",
+      "destination_ref": "logging:central"
+    }
+  ],
+  "monitoring_scopes": [
+    {
+      "project_id": "socioprophet-web",
+      "scope_id": "platform-observability",
+      "status": "covered"
+    }
+  ],
+  "firebase_projects": [
+    {
+      "project_id": "socioprophet-web",
+      "firebase_project_id": "socioprophet-web",
+      "status": "linked"
+    }
+  ],
+  "public_endpoints": [
+    {
+      "id": "public-endpoint:socioprophet-web",
+      "project_id": "socioprophet-web",
+      "surface": "cloud",
+      "url": "https://socioprophet.ai",
+      "certificate_ref": "socioprophet-ai-cert",
+      "dns_record_ref": "socioprophet.ai/A"
+    }
+  ]
+}
