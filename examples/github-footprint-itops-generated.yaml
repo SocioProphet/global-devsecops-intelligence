@@ -222,6 +222,9 @@ ontogenesis_scaffold:
     - id: catalog/registry.ttl
       kind: registry
       description: "Module index with layer, path, SemVer, and base IRI metadata."
+    - id: SPDX
+      kind: supply-chain-evidence
+      description: "SPDX SBOM generation and license/evidence export surface."
   useful_classes: ["Provenance", "EvaluationEvent", "PolicyDecision", "Receipt"]
   lifecycle_states: ["SEEDED", "NORMALIZED", "LINKED", "TRUSTED", "ACTIONABLE", "DELIVERED"]
 

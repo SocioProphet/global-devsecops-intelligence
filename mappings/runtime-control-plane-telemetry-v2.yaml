@@ -1,0 +1,95 @@
+version: v2
+profile: runtime-control-plane-telemetry
+purpose: >-
+  Demonstrate how runtime-control-plane evidence from platform, policy, agent, and
+  operational readiness systems normalizes into global DevSecOps intelligence objects.
+source_records:
+  prophet_platform:
+    runtime_dry_run_record_ref: schemas/runtime/fogstack-runtime-dry-run-record-v0.1.schema.json
+    live_cluster_preflight_record_ref: schemas/runtime/fogstack-live-cluster-preflight-record-v0.1.schema.json
+    identity_context_ref: contracts/identity
+    parity_readiness_ref: tools/check_fogstack_parity_readiness.py
+  policy_fabric:
+    diff_hygiene_gate_report_ref: contracts/policy_fabric_diff_hygiene_gate_report_v0.schema.json
+  agentplane:
+    agentic_pr_work_order_ref: examples/agentic-pr-work-order.example.json
+canonical_objects:
+  TelemetrySignal:
+    required_fields:
+      - event_name
+      - signal_class
+      - source
+      - ts_ms
+      - environment
+      - trace_id
+      - request_id
+    correlation_fields:
+      - agentplane_run_id
+      - policyplane_decision_id
+      - runtime_dry_run_record_ref
+      - live_cluster_preflight_record_ref
+      - identity_context_ref
+      - diff_hygiene_gate_report_id
+      - agentic_pr_work_order_id
+  PolicyDecision:
+    derived_from:
+      - policy_fabric.diff_hygiene_gate_report_ref
+      - prophet_platform.runtime_dry_run_record_ref
+    required_fields:
+      - policy_decision_id
+      - subject_ref
+      - decision
+      - effect
+      - reason
+  EvidenceArtifact:
+    derived_from:
+      - prophet_platform.runtime_dry_run_record_ref
+      - prophet_platform.live_cluster_preflight_record_ref
+      - prophet_platform.parity_readiness_ref
+    required_fields:
+      - artifact_ref
+      - artifact_digest
+      - schema_ref
+      - produced_by
+      - observed_at
+  CorrelationContext:
+    derived_from:
+      - agentplane.agentic_pr_work_order_ref
+      - prophet_platform.identity_context_ref
+    required_fields:
+      - trace_id
+      - request_id
+      - build_id
+      - environment
+      - actor_ref
+normalization_rules:
+  - id: preserve_policy_decision_ref
+    rule: >-
+      Runtime telemetry that references a PolicyPlane or Policy Fabric decision MUST
+      preserve the original decision identifier and decision effect.
+  - id: preserve_agent_work_order_ref
+    rule: >-
+      Agentic work initiated through AgentPlane MUST retain the work-order identifier
+      through platform runtime telemetry and operational intelligence records.
+  - id: preserve_safety_boundary
+    rule: >-
+      Live-preflight telemetry MUST preserve live_apply_allowed, mutated_cluster,
+      human_approval_required, and preflight_status when those fields exist.
+  - id: redact_bootstrap_material
+    rule: >-
+      Raw bootstrap, browser-console, signed URL, or session-bearing evidence MUST be
+      redacted before durable publication; retain a redaction receipt instead.
+topic_bindings:
+  ops.telemetry.signals.v1:
+    accepts:
+      - TelemetrySignal
+      - CorrelationContext
+  ops.policy.decisions.v1:
+    accepts:
+      - PolicyDecision
+  ops.evidence.artifacts.v1:
+    accepts:
+      - EvidenceArtifact
+  ops.learning.feedback.v1:
+    accepts:
+      - CorrelationContext
