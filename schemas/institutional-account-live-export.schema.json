@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.dev/schemas/global-devsecops-intelligence/institutional-account-live-export.schema.json",
+  "title": "Institutional Account Live Export",
+  "type": "object",
+  "required": [
+    "export_metadata",
+    "organization",
+    "folders",
+    "projects",
+    "iam_policy_bindings",
+    "service_accounts",
+    "billing_accounts",
+    "dns_zones",
+    "dns_records",
+    "certificates",
+    "log_sinks",
+    "monitoring_scopes",
+    "firebase_projects",
+    "public_endpoints"
+  ],
+  "properties": {
+    "export_metadata": {
+      "type": "object",
+      "required": ["export_id", "schema_ref", "provider", "exported_at", "source_mode"],
+      "properties": {
+        "export_id": {"type": "string"},
+        "schema_ref": {"const": "schemas/institutional-account-live-export.schema.json"},
+        "provider": {"const": "gcp"},
+        "exported_at": {"type": "string"},
+        "source_mode": {"enum": ["live-export", "synthetic-example", "redacted-live-export"]}
+      },
+      "additionalProperties": false
+    },
+    "organization": {"type": "object"},
+    "folders": {"type": "array"},
+    "projects": {"type": "array"},
+    "iam_policy_bindings": {"type": "array"},
+    "service_accounts": {"type": "array"},
+    "billing_accounts": {"type": "array"},
+    "dns_zones": {"type": "array"},
+    "dns_records": {"type": "array"},
+    "certificates": {"type": "array"},
+    "log_sinks": {"type": "array"},
+    "monitoring_scopes": {"type": "array"},
+    "firebase_projects": {"type": "array"},
+    "public_endpoints": {"type": "array"}
+  },
+  "additionalProperties": false
+}
