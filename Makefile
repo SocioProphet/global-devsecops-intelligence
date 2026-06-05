@@ -1,6 +1,6 @@
-.PHONY: validate test service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate
+.PHONY: validate test service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate preproduction-release-control-validate
 
-validate: service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate client-runtime-dump-exposure-validate
+validate: service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate client-runtime-dump-exposure-validate preproduction-release-control-validate
 	@echo "OK: validate"
 
 service-desk-metrics-validate:
@@ -17,6 +17,9 @@ github-footprint-itops-validate: github-footprint-itops-generated-validate
 
 client-runtime-dump-exposure-validate:
 	python3 tools/validate_client_runtime_dump_exposure.py
+
+preproduction-release-control-validate:
+	python3 tools/validate_preproduction_release_control.py
 
 test:
 	python3 -m pytest -q tools/tests
