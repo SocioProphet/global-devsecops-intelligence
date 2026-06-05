@@ -1,0 +1,166 @@
+profile:
+  id: preproduction-release-control
+  version: 0.1.0
+  status: draft
+  purpose: >-
+    Project preproduction release governance controls into the operations-domain
+    intelligence surface for evidence completeness, release-readiness scoring,
+    graph reasoning, exception debt tracking, and operational learning.
+
+ownership_boundary:
+  operations_domain_projection: SocioProphet/global-devsecops-intelligence
+  repository_topology: SocioProphet/sociosphere
+  canonical_platform_schemas: platform-standards-repositories
+  runtime_enforcement: platform-runtime-repositories
+  graph_reasoning: hellgraph-or-policy-reasoning-repositories
+  tamper_evident_state: governance-ledger-repositories
+
+readiness_is_certification: false
+
+readiness_states:
+  - blocked
+  - partial
+  - ready_for_review
+  - ready_for_promotion
+  - emergency_reconcile
+  - complete
+
+control_families:
+  - id: PRC-001
+    name: Change governance
+    required_evidence:
+      - ChangeRecord
+      - linked_issue_or_pr_refs
+      - rollback_plan
+      - impact_statement
+      - deployment_readiness_criteria
+    graph_query_target: changes_with_artifacts_but_no_change_record
+  - id: PRC-002
+    name: Separation of duties
+    required_evidence:
+      - approver_identity
+      - approver_role
+      - approval_timestamp
+      - separation_of_duties_result
+    graph_query_target: approvals_where_approver_overlaps_author_or_reviewer
+  - id: PRC-003
+    name: Evidence completeness
+    required_evidence:
+      - EvidenceBundle
+      - immutable_log_hashes
+      - validation_result
+      - open_exception_refs
+    graph_query_target: releases_with_incomplete_evidence_bundle
+  - id: PRC-004
+    name: Supply-chain integrity
+    required_evidence:
+      - artifact_digest
+      - signature_verification_result
+      - sbom_ref
+      - provenance_ref
+    graph_query_target: deployments_missing_signature_sbom_or_provenance
+  - id: PRC-005
+    name: Secrets and certificates
+    required_evidence:
+      - secret_reference_only
+      - certificate_reference_only
+      - leak_scan_result
+      - no_inline_secret_assertion
+    graph_query_target: deploy_inputs_or_evidence_with_secret_leak_findings
+  - id: PRC-006
+    name: Vulnerability scanning
+    required_evidence:
+      - scan_type
+      - scan_target_ref
+      - scan_timestamp
+      - scan_result_ref
+      - scan_log_hash
+      - finding_issue_refs
+    graph_query_target: releases_with_stale_scan_or_expired_exception
+  - id: PRC-007
+    name: Service validation
+    required_evidence:
+      - test_plan_ref
+      - test_result_ref
+      - test_log_hash
+      - post_install_validation_result
+    graph_query_target: services_promoted_with_failed_validation
+  - id: PRC-008
+    name: Network and runtime security posture
+    required_evidence:
+      - network_policy_check_result
+      - operational_access_path_result
+      - runtime_security_tooling_result
+      - drift_issue_refs
+    graph_query_target: environments_with_repeated_network_or_runtime_drift
+  - id: PRC-009
+    name: Baseline update
+    required_evidence:
+      - BaselineManifest
+      - baseline_commit_ref
+      - previous_baseline_ref
+      - release_label
+      - image_and_artifact_digests
+    graph_query_target: deployments_without_matching_baseline_update
+  - id: PRC-010
+    name: Promotion boundary
+    required_evidence:
+      - source_environment
+      - target_environment
+      - trusted_artifact_repository_ref
+      - promoted_artifact_digest
+      - deployable_signature_verification
+    graph_query_target: production_artifacts_not_promoted_through_trusted_path
+  - id: PRC-011
+    name: Rollback and emergency reconciliation
+    required_evidence:
+      - rollback_or_emergency_trigger
+      - actor_ref
+      - business_justification
+      - event_log_ref
+      - reconciliation_issue_ref
+      - final_evidence_bundle_ref
+    graph_query_target: emergency_changes_without_reconciliation_evidence
+
+ops_domain_entities:
+  - ChangeRecord
+  - DeploymentBOM
+  - EvidenceBundle
+  - BaselineManifest
+  - ReleaseException
+  - PromotionEvent
+  - RollbackEvent
+  - EmergencyReconciliation
+  - Artifact
+  - SignatureVerification
+  - ScanFinding
+  - RuntimeDrift
+  - SecurityControl
+  - Repository
+  - Service
+  - Environment
+
+topics:
+  - change.record.created
+  - change.record.approved
+  - evidence.bundle.attached
+  - scan.completed
+  - scan.exception.opened
+  - deployment.started
+  - deployment.signature.failed
+  - deployment.rollback.started
+  - deployment.rollback.completed
+  - baseline.updated
+  - promotion.requested
+  - promotion.completed
+  - admission.rejected
+  - policy.drift.detected
+  - security.tooling.absent
+  - breakglass.invoked
+  - breakglass.reconciled
+
+export_rules:
+  raw_sensitive_payloads: reference_only
+  evidence_requires_immutable_refs: true
+  readiness_score_is_certification: false
+  emergency_flow_deletes_evidence_requirement: false
