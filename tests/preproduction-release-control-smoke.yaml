@@ -1,0 +1,54 @@
+id: preproduction-release-control-smoke
+version: 0.1.0
+status: draft
+checks:
+  - id: doctrine-primitives-present
+    description: Doctrine defines the four primary release evidence primitives.
+    expect_tokens:
+      - ChangeRecord
+      - DeploymentBOM
+      - EvidenceBundle
+      - BaselineManifest
+  - id: control-families-present
+    description: Profile carries PRC-001 through PRC-011 control families.
+    expect_tokens:
+      - PRC-001
+      - PRC-002
+      - PRC-003
+      - PRC-004
+      - PRC-005
+      - PRC-006
+      - PRC-007
+      - PRC-008
+      - PRC-009
+      - PRC-010
+      - PRC-011
+  - id: boundary-present
+    description: ADR preserves ops-domain projection boundary and rejects runtime ownership drift.
+    expect_tokens:
+      - operations-domain profile
+      - ops-domain projection
+      - SHALL NOT
+      - runtime enforcement
+  - id: readiness-boundary-present
+    description: Doctrine and profile explicitly separate readiness from certification.
+    expect_tokens:
+      - readiness_is_certification: false
+      - readiness score is not certification
+      - readiness from certification
+  - id: emergency-reconciliation-present
+    description: Emergency and rollback paths retain reconciliation evidence obligations.
+    expect_tokens:
+      - EmergencyReconciliation
+      - emergency_reconcile
+      - breakglass.reconciled
+      - reconciliation_issue_ref
+  - id: release-topics-present
+    description: Profile defines release-governance operational topics.
+    expect_tokens:
+      - change.record.created
+      - evidence.bundle.attached
+      - deployment.signature.failed
+      - baseline.updated
+      - promotion.completed
+      - policy.drift.detected
