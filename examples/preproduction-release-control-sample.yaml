@@ -1,0 +1,65 @@
+id: preproduction-release-control-sample
+version: 0.1.0
+status: synthetic
+kind: PreproductionReleaseControlSample
+readiness_is_certification: false
+sample_release:
+  change_record:
+    id: CHG-SYNTH-0001
+    change_type: standard
+    affected_repositories:
+      - SocioProphet/example-service
+    target_environment: preproduction
+    readiness_state: partial
+    rollback_plan_ref: artifact://synthetic/rollback-plan
+    impact_statement_ref: artifact://synthetic/impact-statement
+  deployment_bom:
+    release_name: example-service-preprod
+    release_tag: v0.0.0-synthetic
+    artifact_digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+    signature_verification_result: synthetic-pass
+    sbom_ref: artifact://synthetic/sbom.spdx.json
+    provenance_ref: artifact://synthetic/provenance.intoto.jsonl
+  evidence_bundle:
+    id: evb-synthetic-0001
+    immutable_log_hashes_present: true
+    scan_result_refs:
+      - artifact://synthetic/sast.json
+      - artifact://synthetic/container-scan.json
+    test_result_ref: artifact://synthetic/test-results.json
+    deployment_log_ref: artifact://synthetic/deploy.log
+    post_install_validation_result: synthetic-pass
+    open_exception_refs:
+      - EXC-SYNTH-0001
+  baseline_manifest:
+    id: base-synthetic-0001
+    baseline_commit_ref: synthetic-commit
+    previous_baseline_ref: base-synthetic-0000
+    release_label: preprod-v0.0.0-synthetic
+  release_exception:
+    id: EXC-SYNTH-0001
+    failed_control: PRC-006
+    reason_not_fixed_immediately: synthetic medium finding accepted for preproduction validation only
+    mitigation: isolate environment and block promotion until remediated
+    owner: platform-security
+    deadline: 1970-01-08
+expected_controls:
+  satisfied:
+    - PRC-001
+    - PRC-003
+    - PRC-004
+    - PRC-007
+    - PRC-009
+  partial:
+    - PRC-006
+  blocked_until_runtime_evidence:
+    - PRC-002
+    - PRC-005
+    - PRC-008
+    - PRC-010
+    - PRC-011
+expected_graph_queries:
+  - releases_with_incomplete_evidence_bundle
+  - deployments_missing_signature_sbom_or_provenance
+  - releases_with_stale_scan_or_expired_exception
+  - deployments_without_matching_baseline_update
