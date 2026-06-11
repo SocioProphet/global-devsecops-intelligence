@@ -37,3 +37,11 @@ release_profiles:
     - raw-user-actions
     - raw-user-messages
     - windowed-logs
+  web_runtime_privacy_review:
+    - raw-web-runtime-events
+    - raw-web-network-events
+    - normalized-web-runtime-privacy-observations
+    - normalized-delivery-path-review
+    - derived-web-privacy-risk-classification
+    - derived-runtime-evidence-boundary
+    - insight-runtime-causality-review
