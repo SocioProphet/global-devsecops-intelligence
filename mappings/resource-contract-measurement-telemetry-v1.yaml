@@ -1,0 +1,139 @@
+version: v1
+profile: resource-contract-measurement-telemetry
+purpose: >-
+  Make global-devsecops-intelligence the first real CONSUMER of sourceos-spec's Measurement
+  and ResourceContract. A runner or gate that declares a ResourceContract (a limit plus a
+  gate-eligible Measurement of its observed peak) is a resource-saturation telemetry source;
+  this mapping normalizes it into the ops measurement plane's canonical objects, and — the
+  load-bearing part — turns the never-fired-control defect into a learning-feedback VIOLATION
+  instead of letting it disappear.
+#
+# WHY THIS MAPPING EXISTS
+# Measurement.json and ResourceContract.json (SourceOS-Linux/sourceos-spec, merged 2026-07-30)
+# were built to make two defects unrepresentable: a value nobody measured reported as evidence,
+# and a limit that observes but never enforces ("Action taken: none"). Two schemas whose whole
+# purpose is catching unused declarations are worthless if they are themselves declared by
+# nobody. This is the consumer that closes that gap: the ops plane ingests them, and sociosphere
+# (downstream, via ops.learning.feedback.v1) scores them PROVED / VIOLATION / INCONCLUSIVE.
+#
+# The verdict vocabulary is deliberately sociosphere's proof_artifact algebra
+# (catalog/evidence-contracts.yaml), not a new one — gate-eligibility maps onto sufficiency:
+#   Measurement.gateEligible == false                       -> INCONCLUSIVE  (unmeasured/refused)
+#   ResourceContract enforcement acted (firedCount > 0)     -> PROVED        (the control has teeth)
+#   observedPeak.value > limit.value AND firedCount == 0    -> VIOLATION     (never-fired control)
+# The VIOLATION row is the reason the whole estate cares: a limit exceeded in production that
+# never once enforced is not an absence of news, it is a counterexample to the claim that the
+# limit is a control.
+
+source_records:
+  sourceos_spec:
+    resource_contract_ref: schemas/ResourceContract.json      # upstream: SourceOS-Linux/sourceos-spec
+    measurement_ref: schemas/Measurement.json                 # upstream: SourceOS-Linux/sourceos-spec
+    negative_control_ref: conformance/resource-contract-throttle-fires.md
+  prophet_platform:
+    # The producers: runners/gates that emit a ResourceContract. Rolled over prophet-platform,
+    # which is both the runtime that emits these and the deploy target for this plane.
+    runner_tenant_slice_ref: contracts/identity
+  sociosphere:
+    # The downstream learner. Its proof_artifact contract is the verdict target below.
+    evidence_contracts_ref: catalog/evidence-contracts.yaml
+
+canonical_objects:
+  TelemetrySignal:
+    derived_from:
+      - sourceos_spec.measurement_ref
+    signal_class: resource-saturation
+    required_fields:
+      - event_name
+      - signal_class
+      - source
+      - ts_ms
+      - environment
+      - measurement_value
+      - measurement_source        # measured | derived | declared | assumed
+      - measurement_gate_eligible # carried THROUGH, never recomputed downstream
+      - measurement_instrument    # required when measurement_source == measured
+    correlation_fields:
+      - resource_contract_id
+      - runner_tenant_slice_ref
+
+  EvidenceArtifact:
+    # A ResourceContract normalized as a governed, replayable evidence artifact.
+    derived_from:
+      - sourceos_spec.resource_contract_ref
+      - sourceos_spec.negative_control_ref
+    required_fields:
+      - artifact_ref
+      - artifact_digest
+      - schema_ref
+      - produced_by
+      - observed_at
+      - resource
+      - limit_value
+      - limit_unit
+      - enforcement            # observe | throttle | refuse | terminate
+      - scope                  # process | tenant | aggregate
+      - fired_count
+      - negative_control_ref   # MUST resolve; an acting contract with none is not evidence
+      - observed_peak_ref      # the TelemetrySignal above
+
+  SufficiencyVerdict:
+    # The learning-feedback object. Maps the contract onto sociosphere's proof_artifact verdicts
+    # so the loop speaks one algebra end to end.
+    derived_from:
+      - EvidenceArtifact
+      - TelemetrySignal
+    required_fields:
+      - verdict                # PROVED | VIOLATION | INCONCLUSIVE
+      - reason
+      - resource_contract_id
+      - evidence_artifact_ref
+    verdicts:
+      PROVED: >-
+        enforcement != observe AND fired_count > 0 AND the observed peak is gate-eligible —
+        the control has been observed to act on real load.
+      VIOLATION: >-
+        observed_peak.value > limit.value AND fired_count == 0 — the limit was exceeded in
+        production and never once enforced. A never-fired control is a counterexample to the
+        claim that it is a control, not the absence of one.
+      INCONCLUSIVE: >-
+        the observed peak is not gate-eligible (measurement_source != measured, or members were
+        unobserved) — sufficiency is not established, so no verdict on the control can be drawn.
+
+normalization_rules:
+  - id: carry_gate_eligibility_unrecomputed
+    rule: >-
+      measurement_gate_eligible MUST be carried through from the source Measurement and MUST NOT
+      be recomputed or upgraded downstream. Gate-eligibility is a ceiling set by the producer
+      that owns the instrument; a consumer may lower it but never raise it.
+  - id: never_fired_control_is_a_violation
+    rule: >-
+      A ResourceContract whose observed peak exceeds its limit while fired_count is zero MUST
+      normalize to a SufficiencyVerdict of VIOLATION and be published to ops.learning.feedback.v1.
+      It MUST NOT be dropped, summarized to a healthy counter, or downgraded to INCONCLUSIVE —
+      the exceedance was measured, so sufficiency is not the question; enforcement is.
+  - id: unmeasured_peak_is_inconclusive_not_healthy
+    rule: >-
+      A ResourceContract whose observed peak is not gate-eligible MUST normalize to INCONCLUSIVE,
+      never to PROVED. An unmeasured or partially-observed peak cannot certify that a limit holds.
+  - id: acting_enforcement_requires_resolvable_negative_control
+    rule: >-
+      An EvidenceArtifact whose enforcement is not "observe" MUST carry a negative_control_ref
+      that resolves. A claim to enforce with no demonstration that enforcement can act is
+      inadmissible as evidence, mirroring the ResourceContract schema's own invariant.
+  - id: preserve_scope_against_fanout
+    rule: >-
+      scope MUST be preserved on the EvidenceArtifact. A process-scoped limit and a tenant-scoped
+      limit make different claims, and collapsing them hides the fan-out under which a per-process
+      limit is defeated by N cooperating processes each staying under it.
+
+topic_bindings:
+  ops.telemetry.signals.v1:
+    accepts:
+      - TelemetrySignal
+  ops.evidence.artifacts.v1:
+    accepts:
+      - EvidenceArtifact
+  ops.learning.feedback.v1:
+    accepts:
+      - SufficiencyVerdict

@@ -1,6 +1,6 @@
-.PHONY: validate test manifest-validate manifest-write service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate
+.PHONY: validate test manifest-validate manifest-write service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate resource-contract-telemetry-validate
 
-validate: manifest-validate service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate
+validate: manifest-validate service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate resource-contract-telemetry-validate
 	@echo "OK: validate"
 
 manifest-validate:
@@ -26,6 +26,9 @@ client-runtime-dump-exposure-validate:
 
 operational-exhaust-fusion-validate:
 	python3 tools/validate_operational_exhaust_fusion.py
+
+resource-contract-telemetry-validate:
+	python3 tools/validate_resource_contract_telemetry.py
 
 
 test:
