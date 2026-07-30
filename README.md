@@ -158,6 +158,13 @@ For a guided tour of the documentation tree, see [`docs/README.md`](docs/README.
 
 ## Validation
 
+Install the pinned dependencies first — this is the same set CI installs, and
+`make validate` fails without it:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
 Run all local validators:
 
 ```bash
