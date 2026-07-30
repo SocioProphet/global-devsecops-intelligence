@@ -1,7 +1,13 @@
-.PHONY: validate test service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate
+.PHONY: validate test manifest-validate manifest-write service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate
 
-validate: service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate
+validate: manifest-validate service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate
 	@echo "OK: validate"
+
+manifest-validate:
+	python3 tools/validate_manifest.py
+
+manifest-write:
+	python3 tools/validate_manifest.py --write
 
 service-desk-metrics-validate:
 	python3 tools/validate_service_desk_metrics.py
