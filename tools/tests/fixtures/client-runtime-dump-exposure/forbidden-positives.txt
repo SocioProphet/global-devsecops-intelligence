@@ -1,0 +1,13 @@
+# Known positives for tools/validate_client_runtime_dump_exposure.py.
+#
+# Every non-comment, non-blank line MUST be matched by FORBIDDEN_REGEXES and
+# MUST cause the validator to exit non-zero when present in a committed
+# artifact. Domains are RFC 2606 / RFC 6761 reserved names so this fixture
+# never carries a real contact or a real private route.
+#
+# Before the 2026-07 escaping fix all five of these returned False.
+owner_contact: jane.doe@example.com
+reported_by: ops-oncall+alerts@corp.example.org
+dump_source: https://app.example.com/private/session-9f2a1c
+referrer: https://console.example.net/tenant/acme-holdings/workspace/ops-1
+thread_url: https://chat.example.org/conversation/abc123def456
