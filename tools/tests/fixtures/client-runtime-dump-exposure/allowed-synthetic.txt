@@ -1,0 +1,14 @@
+# Legitimate synthetic / redacted lines drawn from the committed example pack.
+#
+# Every non-comment, non-blank line MUST NOT be matched by FORBIDDEN_REGEXES.
+# These are the near-misses that a careless tightening of the guard would break:
+# bracketed placeholders, `private-route` (not `/private/`), uppercase
+# CONVERSATION inside a placeholder, and prose that mentions email addresses
+# without containing one.
+cookie: "[SYNTHETIC_COOKIE_MATERIAL]; [SYNTHETIC_CLIENT_AUTH_INFO]; [SYNTHETIC_PUID]"
+HTMLDocument https://example.invalid/private-route/[SYNTHETIC_CONVERSATION_ID]
+stateNode: Object { containerInfo: HTMLDocument https://[REDACTED_PRIVATE_ROUTE] }
+__reactContainer$SYNTHETIC: Object { alternate: Object, stateNode: Object }
+- display names, relay email addresses, account email addresses, avatar URLs, and user identifiers;
+owner_contact: "[REDACTED_ACCOUNT_EMAIL]"
+expected_controls: [quarantine_raw_dump, redact_before_indexing]

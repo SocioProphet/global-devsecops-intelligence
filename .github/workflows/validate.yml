@@ -20,8 +20,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install test dependencies
-        run: python3 -m pip install --upgrade pip pytest
+      - name: Install pinned dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
 
       - name: Run validators
         run: make validate

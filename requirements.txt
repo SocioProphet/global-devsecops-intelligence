@@ -1,0 +1,8 @@
+# Pinned dependencies for `make validate` and `make test`.
+#
+# tools/validate_operational_exhaust_fusion.py imports yaml; without pyyaml the
+# validate target fails after five validators have already printed OK.
+PyYAML==6.0.3
+
+# Test runner for `make test` (tools/tests).
+pytest==8.4.2

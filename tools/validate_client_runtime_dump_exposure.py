@@ -86,9 +86,16 @@ REQUIRED_SMOKE_TOKENS = [
 
 # Keep the fixture synthetic. Do not allow obvious real account/contact values or
 # private app-route copies in the committed example pack.
+#
+# These patterns are raw strings: write `\.` and `\s`, never `\\.` or `\\s`.
+# A doubled backslash makes the pattern require a literal backslash inside the
+# candidate value, which no email address or URL contains, so the guard silently
+# matches nothing while still printing OK.
+# tools/tests/test_client_runtime_dump_exposure.py locks this down in both
+# directions.
 FORBIDDEN_REGEXES = [
-    re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"),
-    re.compile(r"https://[^\\s]+/(?:private|conversation|tenant|workspace|account)/[^\\s\\]\)]+"),
+    re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
+    re.compile(r"https://[^\s]+/(?:private|conversation|tenant|workspace|account)/[^\s\]\)]+"),
 ]
 
 
