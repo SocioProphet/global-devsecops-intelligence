@@ -15,8 +15,8 @@ does two things a token-count validator does not:
      back under all three input shapes, the rule would be a rubber stamp and this check would be
      proving nothing.
 
-Dependency-light on purpose: the mapping is token-checked with `re` (no pyyaml), and the verdict
-logic runs on the JSON example via stdlib json.
+Dependency-light on purpose: the mapping is token-checked by substring presence (no pyyaml, no
+`re`), and the verdict logic runs on the JSON example via stdlib json.
 """
 
 from __future__ import annotations
@@ -62,9 +62,13 @@ def expected_verdict(*, peak_value, limit_value, fired_count, gate_eligible, enf
       - not gate-eligible wins first: an unmeasured/partial peak cannot certify anything, so no
         verdict on the control can be drawn -> INCONCLUSIVE.
       - then an acting enforcement that has fired -> PROVED: the control was observed to act.
-      - then an exceeded limit that never fired -> VIOLATION: the never-fired control.
-      - otherwise (within limit, or observe-only) there is no counterexample and nothing was
-        proven to act -> INCONCLUSIVE (no news is not proof of teeth).
+      - then an exceeded limit that never fired -> VIOLATION: the never-fired control. This
+        holds in ANY mode, observe included — an observe-mode control must still record the
+        breach, so silence when the limit was exceeded is itself the failure being asserted
+        (see the mapping rule `never_fired_control_is_a_violation`, which carries no observe
+        carve-out either).
+      - otherwise (the limit held, or a control that did fire but — being observe-mode — proves
+        no teeth) there is no counterexample -> INCONCLUSIVE (no news is not proof of teeth).
     """
     if not gate_eligible:
         return "INCONCLUSIVE"
