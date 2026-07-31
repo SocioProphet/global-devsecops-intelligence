@@ -86,7 +86,7 @@ If your contribution belongs to an upstream repository, please open the issue or
 4. All PRs require at least one approving review from a maintainer.
 5. CI status checks must pass before merge.
 6. Update `CHANGELOG.md` with a summary of changes under the `[Unreleased]` section.
-7. Update `MANIFEST.txt` if you add or remove files.
+7. Regenerate `MANIFEST.txt` if you add, remove, or rename files: `make manifest-write`. Do not hand-edit it — it is generated from `git ls-files`, and `make validate` fails both when a tracked file is absent from the manifest and when the manifest names a path that is no longer tracked.
 
 ---
 

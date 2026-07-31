@@ -1,4 +1,33 @@
+# MANIFEST.txt - inventory of every file tracked in this repository.
+#
+# Generated. Do not hand-edit; regenerate with:
+#   make manifest-write     (or: python3 tools/validate_manifest.py --write)
+#
+# The rule below was inferred from the previously hand-maintained contents of
+# this file, then frozen here so it can be enforced rather than merely stated.
+#
+# inclusion rule: every path reported by `git ls-files`, byte-sorted, no exclusions.
+#
+# What that means, and why:
+# - No exclusions. `.github/workflows/validate.yml` was already listed, so
+#   repository-automation files are in scope and are not filtered out.
+# - `third_party/` is IN. All four vendored IBM ITOPS seed files were already
+#   listed. The external-seed boundary is expressed by ADR 0001 and by
+#   `third_party/ibm-itops/UPSTREAM.md`, not by omitting the files from this
+#   inventory: what ships in the tree is what the inventory records.
+# - Byte-sorted (`LC_ALL=C sort`), which is also `git ls-files` order. The
+#   previous list was byte-sorted apart from one hand-edit that hoisted
+#   `docs/README.md` above two adjacent uppercase filenames; that has been
+#   normalised so the inventory is reproducible from the tree.
+# - Blank lines and lines starting with `#` are comments. Every other line is
+#   exactly one repository-relative path.
+#
+# Enforced by tools/validate_manifest.py via `make validate`, which fails both
+# when a tracked file is absent from this list and when this list names a path
+# that is no longer tracked.
+
 .github/workflows/validate.yml
+.gitignore
 CHANGELOG.md
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
@@ -7,28 +36,49 @@ MANIFEST.txt
 Makefile
 README.md
 SECURITY.md
-docs/README.md
 docs/AGENTIC_SERVICE_DESK_METRICS.md
 docs/MODEL_FABRIC_RELEASE_READINESS.md
+docs/README.md
 docs/adr/0001-ops-domain-profile-and-external-seed-boundary.md
 docs/adr/0002-operational-exhaust-and-trader-agent-fusion-boundary.md
+docs/adr/0003-browser-telemetry-privacy-boundary.md
 docs/architecture/api-interactions-decision.md
+docs/architecture/broker-operational-intelligence-binding.md
+docs/architecture/browser-telemetry-finding-model.md
 docs/architecture/github-footprint-itops-alignment.md
 docs/architecture/institutional-account-hierarchy-itops.md
+docs/architecture/ops-ingestion-and-measurement-plane.md
+docs/architecture/runtime-control-plane-telemetry-alignment.md
+docs/architecture/support-and-premium-support-ai4it-loop.md
+docs/architecture/telemetry-surface-profile.md
+docs/devops/ci-validation-gate.md
+docs/devops/client-runtime-dump-exposure.md
 docs/devops/devops-process-open.md
+docs/devops/metering-anomaly-feedback-pipeline.md
 docs/devops/operational-exhaust-and-trader-agent-fusion.md
+docs/devops/operational-telemetry-integration.md
+docs/devops/professional-intelligence-gate4-control-plane-assessment.md
 docs/vision/ai4it-home-rewrite.md
 examples/agent-service-desk-metrics.example.json
+examples/browser-telemetry-findings/chatgpt-console-trace-classification.example.json
+examples/client-runtime-dump-exposure-sample.yaml
 examples/github-footprint-itops-generated.yaml
 examples/github-footprint-itops-sample.yaml
 examples/model-fabric-release-readiness.example.json
+examples/operational-exhaust/ops-domain-projection.example.json
+mappings/browser-surface-to-ops-domain.md
 mappings/ibm-itops-glo-to-ops-domain.md
+mappings/operational-exhaust-to-ops-domain.v0.yaml
+mappings/ops-telemetry-surface-v1.yaml
+mappings/runtime-control-plane-telemetry-v2.yaml
 open-ai4it-spec/README.md
 open-ai4it-spec/contracts/schemas/entity-output.schema.json
 open-ai4it-spec/contracts/schemas/event-envelope.schema.json
 open-ai4it-spec/contracts/topics/topics.yaml
 open-ai4it-spec/docs/glossary/TERMS.md
 open-ai4it-spec/modules/openentitymap/mapping.schema.json
+profiles/browser-telemetry-risk-profile.v0.yaml
+profiles/client-runtime-dump-exposure-profile.v0.yaml
 profiles/github-footprint-itops-expansion.yaml
 profiles/operational-exhaust-fusion-profile.v0.yaml
 schemas/github-footprint-itops-generated.schema.json
@@ -37,6 +87,7 @@ source_inputs/institutional-account/account-hierarchy.v0.json
 source_inputs/integration-planes/ops-integration-map.v0.json
 source_inputs/ontogenesis/module-map.v0.json
 source_inputs/sociosphere/repository-map.v0.json
+tests/client-runtime-dump-exposure-smoke.yaml
 tests/github-footprint-itops-smoke.yaml
 third_party/ibm-itops/GLO_V1-profile-excerpt.ttl
 third_party/ibm-itops/IMPORT-MANIFEST.v2.json
@@ -44,8 +95,13 @@ third_party/ibm-itops/LICENSE.Apache-2.0
 third_party/ibm-itops/UPSTREAM.md
 tools/generate_github_footprint_itops_projection.py
 tools/tests/test_github_footprint_itops.py
+tools/tests/test_manifest.py
 tools/tests/test_model_fabric_release_readiness.py
+tools/tests/test_operational_exhaust_fusion.py
 tools/tests/test_service_desk_metrics.py
+tools/validate_client_runtime_dump_exposure.py
 tools/validate_github_footprint_itops.py
+tools/validate_manifest.py
 tools/validate_model_fabric_release_readiness.py
+tools/validate_operational_exhaust_fusion.py
 tools/validate_service_desk_metrics.py
