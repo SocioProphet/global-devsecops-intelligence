@@ -1,0 +1,32 @@
+name: build-image
+# Build + publish the GDI service image to GHCR with an immutable sha- tag
+# (prophet-platform pins that sha in deploy/values/global-devsecops-intelligence.yaml).
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', '**/*.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build + push (immutable sha tag)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/socioprophet/global-devsecops-intelligence:sha-${{ github.sha }}
+          provenance: true
+          sbom: true
