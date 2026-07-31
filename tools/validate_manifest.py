@@ -54,6 +54,11 @@ def fail(message: str) -> int:
     return 1
 
 
+def _byte_key(path: str) -> bytes:
+    """Sort key giving LC_ALL=C byte order (git ls-files order), unlike code-point sort."""
+    return path.encode("utf-8")
+
+
 def summarise(paths: list[str]) -> str:
     shown = ", ".join(paths[:MAX_REPORTED])
     extra = len(paths) - MAX_REPORTED
@@ -82,7 +87,9 @@ def tracked_files() -> list[str]:
             "`git ls-files` reported no tracked files; refusing to validate "
             "MANIFEST.txt against an empty tracked-file list"
         )
-    return sorted(paths)
+    # Byte-sort (LC_ALL=C order), NOT Python's default code-point sort: for non-ASCII
+    # UTF-8 paths the two disagree, and the manifest rule promises byte order.
+    return sorted(paths, key=_byte_key)
 
 
 def render(paths: list[str]) -> str:
@@ -110,13 +117,19 @@ def main() -> int:
         return fail(str(exc))
 
     if args.write:
-        MANIFEST.write_text(render(tracked), encoding="utf-8")
+        try:
+            MANIFEST.write_text(render(tracked), encoding="utf-8")
+        except OSError as exc:
+            return fail(f"could not write {MANIFEST.name}: {exc}")
         print(f"OK: wrote {MANIFEST.name} with {len(tracked)} tracked files")
         return 0
 
     if not MANIFEST.exists():
         return fail(f"missing {MANIFEST.name}; regenerate with `make manifest-write`")
-    text = MANIFEST.read_text(encoding="utf-8")
+    try:
+        text = MANIFEST.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        return fail(f"could not read {MANIFEST.name}: {exc}")
     if not text.strip():
         return fail(f"{MANIFEST.name} is empty; regenerate with `make manifest-write`")
     if RULE not in text:
@@ -153,7 +166,7 @@ def main() -> int:
             f"{summarise(stale)}"
         )
 
-    if not problems and entries != sorted(entries):
+    if not problems and entries != sorted(entries, key=_byte_key):
         problems.append(f"{MANIFEST.name} is not byte-sorted")
 
     if not problems and text != render(tracked):
