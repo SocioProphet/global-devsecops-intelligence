@@ -1,0 +1,70 @@
+{
+  "_comment": "Worked example for mappings/resource-contract-measurement-telemetry-v1.yaml. The scenario is the real open question about the sovereign build runners: a tenant-scoped CPU limit that was exceeded in production and never once throttled. It shows a ResourceContract normalizing into a TelemetrySignal + EvidenceArtifact + a SufficiencyVerdict of VIOLATION on ops.learning.feedback.v1 — the never-fired control surfaced as a counterexample rather than lost.",
+
+  "source_resource_contract": {
+    "schemaVersion": "0.1.0",
+    "kind": "ResourceContract",
+    "contractId": "runner-tenant-cpu",
+    "resource": "cpu",
+    "limit": { "value": 0.5, "unit": "ratio-of-one-cpu" },
+    "window": "PT180S",
+    "scope": "tenant",
+    "enforcement": "throttle",
+    "negativeControl": "conformance/resource-contract-throttle-fires.md",
+    "firedCount": 0,
+    "observedPeak": {
+      "schemaVersion": "0.1.0",
+      "kind": "Measurement",
+      "label": "peak CPU ratio for the build tenant over the worst observed 180s window",
+      "value": 0.94,
+      "source": "measured",
+      "instrument": "cgroup v2 cpu.stat usage_usec delta, sampled every 10s",
+      "sampling": { "observed": 18, "population": 18, "unit": "10s samples in window" },
+      "unobserved": 0,
+      "gateEligible": true
+    }
+  },
+
+  "normalized": {
+    "TelemetrySignal": {
+      "event_name": "resource.cpu.saturation",
+      "signal_class": "resource-saturation",
+      "source": "sovereign-linux-builder",
+      "ts_ms": 1785424440000,
+      "environment": "sovereign-build",
+      "measurement_value": 0.94,
+      "measurement_source": "measured",
+      "measurement_gate_eligible": true,
+      "measurement_instrument": "cgroup v2 cpu.stat usage_usec delta, sampled every 10s",
+      "resource_contract_id": "runner-tenant-cpu",
+      "runner_tenant_slice_ref": "tenant-build.slice"
+    },
+    "EvidenceArtifact": {
+      "artifact_ref": "resource-contract/runner-tenant-cpu/2026-07-30T14:00:00Z",
+      "artifact_digest": "sha256:PLACEHOLDER-computed-by-producer",
+      "schema_ref": "sourceos-spec:schemas/ResourceContract.json",
+      "produced_by": "sovereign-linux-builder",
+      "observed_at": "2026-07-30T14:00:00Z",
+      "resource": "cpu",
+      "limit_value": 0.5,
+      "limit_unit": "ratio-of-one-cpu",
+      "enforcement": "throttle",
+      "scope": "tenant",
+      "fired_count": 0,
+      "negative_control_ref": "conformance/resource-contract-throttle-fires.md",
+      "observed_peak_ref": "resource.cpu.saturation@1785424440000"
+    },
+    "SufficiencyVerdict": {
+      "verdict": "VIOLATION",
+      "reason": "observed peak 0.94 exceeds the limit 0.5 ratio-of-one-cpu over the same PT180S window, and fired_count is 0 — the tenant CPU limit was breached in production and the declared 'throttle' enforcement never once acted. Per normalization rule never_fired_control_is_a_violation this is a counterexample to the claim that the limit is a control, not the absence of news. The likely cause, per the negative-control procedure, is that cpu.max was written on a slice whose cgroup.procs is empty because the VMM landed under the daemon's hierarchy.",
+      "resource_contract_id": "runner-tenant-cpu",
+      "evidence_artifact_ref": "resource-contract/runner-tenant-cpu/2026-07-30T14:00:00Z"
+    }
+  },
+
+  "counterfactuals": {
+    "_comment": "The same contract under the other two verdicts, to show the mapping is not a rubber stamp for VIOLATION.",
+    "PROVED_if": "fired_count > 0 with a resolvable negativeControl and a gate-eligible peak — the throttle was observed to act on real load.",
+    "INCONCLUSIVE_if": "observedPeak.source were 'assumed' or unobserved > 0 — gateEligible would be false, so sufficiency is unestablished and no verdict on the control can be drawn (an unmeasured peak cannot certify the limit holds)."
+  }
+}
