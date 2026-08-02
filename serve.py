@@ -13,7 +13,7 @@ of this same validation core — see MESH_* env — and is the next increment.
 
 Stdlib only (keeps requirements.txt to PyYAML+pytest).
 """
-import os, subprocess, sys, threading, time
+import json, os, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
@@ -29,9 +29,42 @@ def _int_env(key: str, default: int) -> int:
 
 PORT = _int_env("PORT", 8840)
 INTERVAL_S = _int_env("GDI_VALIDATE_INTERVAL_S", 300)
+# Mesh consume->produce loop (GDI-2), OFF by default so deployment behaviour is
+# unchanged until an operator opts in with MESH_ENABLED=1 (+ MESH_INPUT_DIR/MESH_OUTPUT_DIR).
+MESH_ENABLED = os.environ.get("MESH_ENABLED", "0").strip().lower() not in ("", "0", "false", "no")
+MESH_INTERVAL_S = _int_env("MESH_INTERVAL_S", 60)
 
 _state = {"last_rc": None, "last_ts": 0, "runs": 0, "fails": 0}
+_mesh = {"runs": 0, "consumed": 0, "produced": 0, "rejected": 0, "last_ts": 0}
 _lock = threading.Lock()
+
+
+def _mesh_loop() -> None:
+    """Run the mesh consume->produce loop on an interval (opt-in via MESH_ENABLED)."""
+    while True:
+        try:
+            r = subprocess.run(["python3", "tools/mesh_consume.py"], cwd=os.path.dirname(__file__) or ".",
+                               capture_output=True, text=True, timeout=300)
+            stats = None
+            for line in (r.stdout or "").splitlines():
+                if line.startswith("STATS "):
+                    try:
+                        stats = json.loads(line[len("STATS "):])
+                    except json.JSONDecodeError:
+                        stats = None
+            with _lock:
+                _mesh["runs"] += 1
+                _mesh["last_ts"] = int(time.time())
+                if isinstance(stats, dict):
+                    for k in ("consumed", "produced", "rejected"):
+                        _mesh[k] += int(stats.get(k, 0))
+                else:
+                    sys.stderr.write("[gdi] mesh_consume: no parseable STATS line\n")
+            if r.returncode != 0:
+                sys.stderr.write(f"[gdi] mesh_consume rc={r.returncode}\n{r.stderr[-2000:]}\n")
+        except Exception as e:
+            sys.stderr.write(f"[gdi] mesh_consume errored: {e}\n")
+        time.sleep(MESH_INTERVAL_S)
 
 
 def _run_validators() -> None:
@@ -72,6 +105,26 @@ def _metrics() -> str:
         "# HELP gdi_last_run_timestamp_seconds unix ts of the last validator run.\n"
         "# TYPE gdi_last_run_timestamp_seconds gauge\n"
         f"gdi_last_run_timestamp_seconds {s['last_ts']}\n"
+        + _mesh_metrics()
+    )
+
+
+def _mesh_metrics() -> str:
+    with _lock:
+        m = dict(_mesh)
+    return (
+        "# HELP gdi_mesh_enabled 1 if the mesh consume loop is enabled.\n"
+        "# TYPE gdi_mesh_enabled gauge\n"
+        f"gdi_mesh_enabled {1 if MESH_ENABLED else 0}\n"
+        "# HELP gdi_mesh_consumed_total telemetry events consumed.\n"
+        "# TYPE gdi_mesh_consumed_total counter\n"
+        f"gdi_mesh_consumed_total {m['consumed']}\n"
+        "# HELP gdi_mesh_produced_total ops findings produced.\n"
+        "# TYPE gdi_mesh_produced_total counter\n"
+        f"gdi_mesh_produced_total {m['produced']}\n"
+        "# HELP gdi_mesh_rejected_total telemetry events rejected (fail-closed).\n"
+        "# TYPE gdi_mesh_rejected_total counter\n"
+        f"gdi_mesh_rejected_total {m['rejected']}\n"
     )
 
 
@@ -97,6 +150,8 @@ class H(BaseHTTPRequestHandler):
 
 def main() -> None:
     threading.Thread(target=_run_validators, daemon=True).start()
+    if MESH_ENABLED:
+        threading.Thread(target=_mesh_loop, daemon=True).start()
     ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()
 
 

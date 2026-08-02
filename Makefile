@@ -1,4 +1,4 @@
-.PHONY: validate test manifest-validate manifest-write service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate resource-contract-telemetry-validate meshrush-events-validate
+.PHONY: validate test manifest-validate manifest-write service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate github-footprint-itops-generated-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate resource-contract-telemetry-validate meshrush-events-validate mesh-consume
 
 validate: manifest-validate service-desk-metrics-validate model-fabric-release-readiness-validate github-footprint-itops-validate client-runtime-dump-exposure-validate operational-exhaust-fusion-validate resource-contract-telemetry-validate meshrush-events-validate
 	@echo "OK: validate"
@@ -33,6 +33,9 @@ resource-contract-telemetry-validate:
 meshrush-events-validate:
 	python3 tools/validate_meshrush_events.py
 
+
+mesh-consume:
+	python3 tools/mesh_consume.py
 
 test:
 	python3 -m pytest -q tools/tests
