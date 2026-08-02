@@ -103,11 +103,13 @@ third_party/ibm-itops/IMPORT-MANIFEST.v2.json
 third_party/ibm-itops/LICENSE.Apache-2.0
 third_party/ibm-itops/UPSTREAM.md
 tools/generate_github_footprint_itops_projection.py
+tools/mesh_consume.py
 tools/tests/fixtures/client-runtime-dump-exposure/allowed-synthetic.txt
 tools/tests/fixtures/client-runtime-dump-exposure/forbidden-positives.txt
 tools/tests/test_client_runtime_dump_exposure.py
 tools/tests/test_github_footprint_itops.py
 tools/tests/test_manifest.py
+tools/tests/test_mesh_consume.py
 tools/tests/test_model_fabric_release_readiness.py
 tools/tests/test_operational_exhaust_fusion.py
 tools/tests/test_serve.py
