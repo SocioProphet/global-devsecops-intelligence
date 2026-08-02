@@ -16,6 +16,7 @@ and (3) recomputes the slot-fill counts so a mislabeled example cannot pass.
 """
 from __future__ import annotations
 
+import datetime
 import json
 import re
 import sys
@@ -60,6 +61,14 @@ def _validate_envelope(event: dict, schema: dict, label: str) -> None:
         _fail(f"{label}: utc_timestamp must be a non-empty string")
     if not _TYPE_RE.fullmatch(event["type"]):
         _fail(f"{label}: type {event['type']!r} must match ^[a-z0-9_]+$")
+    # Cross-check the two time fields agree (internally consistent event time).
+    try:
+        dt = datetime.datetime.fromisoformat(event["utc_timestamp"].replace("Z", "+00:00"))
+    except ValueError:
+        _fail(f"{label}: utc_timestamp is not an RFC3339/ISO-8601 date-time")
+    expected_ms = int(dt.timestamp() * 1000)
+    if abs(expected_ms - event["timestamp"]) > 1000:
+        _fail(f"{label}: timestamp {event['timestamp']} disagrees with utc_timestamp ({expected_ms})")
 
 
 def main() -> int:
@@ -75,18 +84,22 @@ def main() -> int:
             if etype not in MESHRUSH_TOPICS:
                 _fail(f"{label}: unknown MeshRush event type {etype!r}")
             topic = MESHRUSH_TOPICS[etype]
-            if topic not in topics_text:
-                _fail(f"{label}: topic {topic!r} for type {etype!r} not registered in topics.yaml")
+            # Match a real YAML list entry, not any substring (avoid comment false-positives).
+            if not re.search(rf"^\s*-\s*{re.escape(topic)}\s*$", topics_text, re.MULTILINE):
+                _fail(f"{label}: topic {topic!r} for type {etype!r} not registered as a topics.yaml list entry")
 
             # Semantic check: a slot-fill's stated counts must match its arrays
             # (a mislabeled example must not pass — the estate's declared-not-checked rule).
             if etype == "meshrush_slot_fill":
                 d = event.get("data", {})
-                if d.get("n_filled") != len(d.get("fills", [])):
+                fills, refused = d.get("fills"), d.get("refused")
+                if not isinstance(fills, list) or not isinstance(refused, list):
+                    _fail(f"{label}: data.fills and data.refused must be lists")
+                if d.get("n_filled") != len(fills):
                     _fail(f"{label}: n_filled != len(fills)")
-                if d.get("n_refused") != len(d.get("refused", [])):
+                if d.get("n_refused") != len(refused):
                     _fail(f"{label}: n_refused != len(refused)")
-    except ValueError as exc:
+    except (ValueError, OSError, TypeError, json.JSONDecodeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
     print(f"OK: MeshRush event ingest validated ({len(EVENTS)} events, {len(MESHRUSH_TOPICS)} topics)")

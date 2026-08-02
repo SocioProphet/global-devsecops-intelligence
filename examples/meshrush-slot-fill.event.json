@@ -1,5 +1,5 @@
 {
-  "timestamp": 1754100000000,
+  "timestamp": 1785628800000,
   "utc_timestamp": "2026-08-02T00:00:00.000Z",
   "type": "meshrush_slot_fill",
   "data_name": "slot_fill",
@@ -7,10 +7,20 @@
     "n_filled": 1,
     "n_refused": 1,
     "fills": [
-      {"slot": "competitors", "artifact_id": "artA", "entity_ref": "meshrush:artifact:artA", "epistemic": "bounded", "score": 0.91}
+      {
+        "slot": "competitors",
+        "artifact_id": "artA",
+        "entity_ref": "meshrush:artifact:artA",
+        "epistemic": "bounded",
+        "score": 0.91
+      }
     ],
     "refused": [
-      {"slot": "pricing", "reason": "no artifact meets epistemic floor 'proved'; refused rather than back-filled with a weaker artifact", "best_available_epistemic": "bounded"}
+      {
+        "slot": "pricing",
+        "reason": "no artifact meets epistemic floor 'proved'; refused rather than back-filled with a weaker artifact",
+        "best_available_epistemic": "bounded"
+      }
     ]
   }
 }

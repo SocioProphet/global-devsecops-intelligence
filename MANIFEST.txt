@@ -67,6 +67,8 @@ examples/browser-telemetry-findings/chatgpt-console-trace-classification.example
 examples/client-runtime-dump-exposure-sample.yaml
 examples/github-footprint-itops-generated.yaml
 examples/github-footprint-itops-sample.yaml
+examples/meshrush-cairnpath-walk.event.json
+examples/meshrush-slot-fill.event.json
 examples/model-fabric-release-readiness.example.json
 examples/operational-exhaust/ops-domain-projection.example.json
 examples/resource-contract-telemetry.example.json
@@ -113,6 +115,7 @@ tools/tests/test_service_desk_metrics.py
 tools/validate_client_runtime_dump_exposure.py
 tools/validate_github_footprint_itops.py
 tools/validate_manifest.py
+tools/validate_meshrush_events.py
 tools/validate_model_fabric_release_readiness.py
 tools/validate_operational_exhaust_fusion.py
 tools/validate_resource_contract_telemetry.py
