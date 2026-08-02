@@ -49,19 +49,30 @@ def test_no_refusals_is_info_severity(tmp_path):
     assert finding["data"]["severity"] == "info"
 
 
-def test_malformed_envelope_is_rejected_not_findinged(tmp_path):
+def test_malformed_envelope_is_rejected_not_turned_into_finding(tmp_path):
     inbox, outbox = tmp_path / "in", tmp_path / "out"
     _write(inbox, "bad.json", {"type": "MeshRush", "data": {}})  # missing timestamp/utc; bad type
     stats = consume_once(inbox, outbox, SCHEMA, clock=CLOCK)
     assert stats["rejected"] == 1 and stats["produced"] == 0
     assert list(outbox.glob("finding-*.json")) == []
     assert (outbox / "_rejected.log").exists()
+    assert (outbox / "_rejected" / "bad.json").exists()  # drained out of the inbox
 
 
-def test_idempotent_no_duplicate_findings(tmp_path):
+def test_timestamp_utc_mismatch_is_rejected(tmp_path):
+    inbox, outbox = tmp_path / "in", tmp_path / "out"
+    ev = _valid_slot_fill()
+    ev["utc_timestamp"] = "2099-01-01T00:00:00.000Z"  # disagrees with timestamp
+    _write(inbox, "skew.json", ev)
+    stats = consume_once(inbox, outbox, SCHEMA, clock=CLOCK)
+    assert stats["rejected"] == 1 and stats["produced"] == 0
+
+
+def test_inbox_is_drained_so_reruns_do_not_reconsume(tmp_path):
     inbox, outbox = tmp_path / "in", tmp_path / "out"
     _write(inbox, "e1.json", _valid_slot_fill())
     consume_once(inbox, outbox, SCHEMA, clock=CLOCK)
-    stats2 = consume_once(inbox, outbox, SCHEMA, clock=CLOCK)  # re-run
-    assert stats2["produced"] == 0  # already produced
+    stats2 = consume_once(inbox, outbox, SCHEMA, clock=CLOCK)  # re-run: inbox drained
+    assert stats2 == {"consumed": 0, "produced": 0, "rejected": 0}
     assert len(list(outbox.glob("finding-*.json"))) == 1
+    assert (outbox / "_processed" / "e1.json").exists()

@@ -54,10 +54,24 @@ def envelope_errors(event: object, schema: dict) -> list[str]:
         extra = sorted(set(event) - set(props))
         if extra:
             errs.append(f"unexpected fields {extra}")
-    if "timestamp" in event and (not isinstance(event["timestamp"], int) or isinstance(event["timestamp"], bool)):
+    ts_ok = "timestamp" in event and isinstance(event["timestamp"], int) and not isinstance(event["timestamp"], bool)
+    if "timestamp" in event and not ts_ok:
         errs.append("timestamp must be an integer")
     if "type" in event and not (isinstance(event["type"], str) and _TYPE_RE.fullmatch(event["type"])):
         errs.append("type must match ^[a-z0-9_]+$")
+    utc = event.get("utc_timestamp")
+    utc_ok = isinstance(utc, str) and bool(utc)
+    if "utc_timestamp" in event and not utc_ok:
+        errs.append("utc_timestamp must be a non-empty string")
+    # Cross-check the two time fields agree (internally consistent event time),
+    # matching the stricter validation in tools/validate_meshrush_events.py.
+    if ts_ok and utc_ok:
+        try:
+            dt = datetime.datetime.fromisoformat(utc.replace("Z", "+00:00"))
+            if abs(int(dt.timestamp() * 1000) - event["timestamp"]) > 1000:
+                errs.append("timestamp disagrees with utc_timestamp")
+        except ValueError:
+            errs.append("utc_timestamp is not an RFC3339/ISO-8601 date-time")
     return errs
 
 
@@ -97,33 +111,47 @@ def consume_once(input_dir: Path, output_dir: Path, schema: dict, *, clock=_now_
     in ``output_dir/_rejected.log`` with their errors; no finding is produced for them.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir = output_dir / "_processed"
+    rejected_dir = output_dir / "_rejected"
     stats = {"consumed": 0, "produced": 0, "rejected": 0}
     rejected_log: list[str] = []
 
+    def _drain(path: Path, dest_dir: Path) -> None:
+        # Move the source out of the inbox so a long-running loop consumes it once.
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        dest = dest_dir / path.name
+        if dest.exists():  # avoid clobbering on name reuse
+            dest = dest_dir / f"{path.stem}.{hashlib.sha256(path.name.encode()).hexdigest()[:8]}{path.suffix}"
+        os.replace(path, dest)
+
     for path in sorted(input_dir.glob("*.json")) if input_dir.exists() else []:
         stats["consumed"] += 1
+        raw = path.read_bytes()
         try:
-            event = json.loads(path.read_text(encoding="utf-8"))
+            event = json.loads(raw)
         except (json.JSONDecodeError, OSError) as exc:
             stats["rejected"] += 1
             rejected_log.append(f"{path.name}: unreadable/invalid JSON ({exc})")
+            _drain(path, rejected_dir)
             continue
         errs = envelope_errors(event, schema)
         if errs:
             stats["rejected"] += 1
             rejected_log.append(f"{path.name}: {'; '.join(errs)}")
+            _drain(path, rejected_dir)
             continue
         ts_ms, utc = clock()
         finding = _finding_for(event, ts_ms, utc)
         # Idempotent: derive the finding filename from the source event content.
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()[:16]
-        out = output_dir / f"finding-{digest}.json"
+        out = output_dir / f"finding-{hashlib.sha256(raw).hexdigest()[:16]}.json"
         if not out.exists():
             out.write_text(json.dumps(finding, indent=2) + "\n", encoding="utf-8")
             stats["produced"] += 1
+        _drain(path, processed_dir)
 
     if rejected_log:
-        (output_dir / "_rejected.log").write_text("\n".join(rejected_log) + "\n", encoding="utf-8")
+        with (output_dir / "_rejected.log").open("a", encoding="utf-8") as fh:
+            fh.write("\n".join(rejected_log) + "\n")
     return stats
 
 
@@ -132,6 +160,8 @@ def main() -> int:
     inbox = Path(os.environ.get("MESH_INPUT_DIR", str(ROOT / "mesh" / "telemetry")))
     outbox = Path(os.environ.get("MESH_OUTPUT_DIR", str(ROOT / "mesh" / "ops-findings")))
     stats = consume_once(inbox, outbox, schema)
+    # Machine-readable stats line for serve.py (robust; not regex-parsed prose).
+    print("STATS " + json.dumps(stats, sort_keys=True))
     print(f"OK: mesh consume — consumed={stats['consumed']} produced={stats['produced']} rejected={stats['rejected']}")
     return 0
 

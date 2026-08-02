@@ -13,7 +13,7 @@ of this same validation core — see MESH_* env — and is the next increment.
 
 Stdlib only (keeps requirements.txt to PyYAML+pytest).
 """
-import os, re, subprocess, sys, threading, time
+import json, os, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
@@ -41,19 +41,25 @@ _lock = threading.Lock()
 
 def _mesh_loop() -> None:
     """Run the mesh consume->produce loop on an interval (opt-in via MESH_ENABLED)."""
-    pat = re.compile(r"consumed=(\d+) produced=(\d+) rejected=(\d+)")
     while True:
         try:
             r = subprocess.run(["python3", "tools/mesh_consume.py"], cwd=os.path.dirname(__file__) or ".",
                                capture_output=True, text=True, timeout=300)
-            m = pat.search(r.stdout or "")
+            stats = None
+            for line in (r.stdout or "").splitlines():
+                if line.startswith("STATS "):
+                    try:
+                        stats = json.loads(line[len("STATS "):])
+                    except json.JSONDecodeError:
+                        stats = None
             with _lock:
                 _mesh["runs"] += 1
                 _mesh["last_ts"] = int(time.time())
-                if m:
-                    _mesh["consumed"] += int(m.group(1))
-                    _mesh["produced"] += int(m.group(2))
-                    _mesh["rejected"] += int(m.group(3))
+                if isinstance(stats, dict):
+                    for k in ("consumed", "produced", "rejected"):
+                        _mesh[k] += int(stats.get(k, 0))
+                else:
+                    sys.stderr.write("[gdi] mesh_consume: no parseable STATS line\n")
             if r.returncode != 0:
                 sys.stderr.write(f"[gdi] mesh_consume rc={r.returncode}\n{r.stderr[-2000:]}\n")
         except Exception as e:
