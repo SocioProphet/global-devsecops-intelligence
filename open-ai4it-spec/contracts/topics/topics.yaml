@@ -23,6 +23,7 @@ release_profiles:
     - derived-log-clustering
     - derived-log-explanation
     - derived-log-story-localization
+    - derived-meshrush-slot-fill
     - derived-stories
     - normalized-alerts
     - normalized-incidents
@@ -31,6 +32,7 @@ release_profiles:
     - normalized-metrics
     - raw-k8s-configs
     - raw-logdna-logs
+    - raw-meshrush-cairnpath-walk
     - raw-pagerduty-alerts
     - raw-servicenow-incidents
     - raw-sysdig-metrics

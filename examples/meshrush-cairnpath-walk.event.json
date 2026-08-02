@@ -1,0 +1,17 @@
+{
+  "timestamp": 1785628800000,
+  "utc_timestamp": "2026-08-02T00:00:00.000Z",
+  "type": "meshrush_cairnpath_walk",
+  "data_name": "cairnpath_walk",
+  "data": {
+    "line_id": "slotfill",
+    "dataset_ref": "meshrush:diffusion",
+    "digest": "blake2b:0000000000000000000000000000000000000000000000000000000000000000",
+    "n_steps": 2,
+    "opcodes": [
+      "retrieve",
+      "retrieve"
+    ],
+    "materialized_steps": 1
+  }
+}
