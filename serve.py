@@ -13,11 +13,22 @@ of this same validation core — see MESH_* env — and is the next increment.
 
 Stdlib only (keeps requirements.txt to PyYAML+pytest).
 """
-import os, subprocess, threading, time
+import os, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-PORT = int(os.environ.get("PORT", "8840"))
-INTERVAL_S = int(os.environ.get("GDI_VALIDATE_INTERVAL_S", "300"))
+
+def _int_env(key: str, default: int) -> int:
+    """Parse an int env var, falling back to default on a malformed value so a
+    bad PORT/INTERVAL can never crash the service before it serves /healthz."""
+    try:
+        return int(os.environ.get(key, str(default)))
+    except (ValueError, TypeError):
+        sys.stderr.write(f"[gdi] invalid {key}={os.environ.get(key)!r}, using {default}\n")
+        return default
+
+
+PORT = _int_env("PORT", 8840)
+INTERVAL_S = _int_env("GDI_VALIDATE_INTERVAL_S", 300)
 
 _state = {"last_rc": None, "last_ts": 0, "runs": 0, "fails": 0}
 _lock = threading.Lock()
@@ -26,10 +37,15 @@ _lock = threading.Lock()
 def _run_validators() -> None:
     while True:
         try:
-            rc = subprocess.run(["make", "validate"], cwd=os.path.dirname(__file__) or ".",
-                                capture_output=True, text=True, timeout=600).returncode
-        except Exception:
+            r = subprocess.run(["make", "validate"], cwd=os.path.dirname(__file__) or ".",
+                               capture_output=True, text=True, timeout=600)
+            rc = r.returncode
+            if rc != 0:  # emit detail so a failed run is debuggable from pod logs
+                sys.stderr.write(f"[gdi] make validate failed rc={rc}\n"
+                                 f"{r.stdout[-4000:]}\n{r.stderr[-2000:]}\n")
+        except Exception as e:
             rc = 2
+            sys.stderr.write(f"[gdi] make validate errored: {e}\n")
         with _lock:
             _state["last_rc"] = rc
             _state["last_ts"] = int(time.time())

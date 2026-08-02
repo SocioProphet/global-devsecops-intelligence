@@ -20,5 +20,5 @@ USER 65532
 EXPOSE 8840
 ENV PORT=8840
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8840/healthz').status==200 else 1)" || exit 1
+  CMD python -c "import os,urllib.request,sys; p=os.environ.get('PORT','8840'); sys.exit(0 if urllib.request.urlopen(f'http://localhost:{p}/healthz', timeout=3).status==200 else 1)" || exit 1
 CMD ["python", "serve.py"]
