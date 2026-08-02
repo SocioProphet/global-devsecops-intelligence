@@ -26,11 +26,13 @@
 # when a tracked file is absent from this list and when this list names a path
 # that is no longer tracked.
 
+.github/workflows/build-image.yml
 .github/workflows/validate.yml
 .gitignore
 CHANGELOG.md
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
+Dockerfile
 LICENSE
 MANIFEST.txt
 Makefile
@@ -58,6 +60,7 @@ docs/devops/metering-anomaly-feedback-pipeline.md
 docs/devops/operational-exhaust-and-trader-agent-fusion.md
 docs/devops/operational-telemetry-integration.md
 docs/devops/professional-intelligence-gate4-control-plane-assessment.md
+docs/devops/resource-contract-telemetry.md
 docs/vision/ai4it-home-rewrite.md
 examples/agent-service-desk-metrics.example.json
 examples/browser-telemetry-findings/chatgpt-console-trace-classification.example.json
@@ -66,10 +69,12 @@ examples/github-footprint-itops-generated.yaml
 examples/github-footprint-itops-sample.yaml
 examples/model-fabric-release-readiness.example.json
 examples/operational-exhaust/ops-domain-projection.example.json
+examples/resource-contract-telemetry.example.json
 mappings/browser-surface-to-ops-domain.md
 mappings/ibm-itops-glo-to-ops-domain.md
 mappings/operational-exhaust-to-ops-domain.v0.yaml
 mappings/ops-telemetry-surface-v1.yaml
+mappings/resource-contract-measurement-telemetry-v1.yaml
 mappings/runtime-control-plane-telemetry-v2.yaml
 open-ai4it-spec/README.md
 open-ai4it-spec/contracts/schemas/entity-output.schema.json
@@ -81,7 +86,9 @@ profiles/browser-telemetry-risk-profile.v0.yaml
 profiles/client-runtime-dump-exposure-profile.v0.yaml
 profiles/github-footprint-itops-expansion.yaml
 profiles/operational-exhaust-fusion-profile.v0.yaml
+requirements.txt
 schemas/github-footprint-itops-generated.schema.json
+serve.py
 source_inputs/README.md
 source_inputs/institutional-account/account-hierarchy.v0.json
 source_inputs/integration-planes/ops-integration-map.v0.json
@@ -94,14 +101,19 @@ third_party/ibm-itops/IMPORT-MANIFEST.v2.json
 third_party/ibm-itops/LICENSE.Apache-2.0
 third_party/ibm-itops/UPSTREAM.md
 tools/generate_github_footprint_itops_projection.py
+tools/tests/fixtures/client-runtime-dump-exposure/allowed-synthetic.txt
+tools/tests/fixtures/client-runtime-dump-exposure/forbidden-positives.txt
+tools/tests/test_client_runtime_dump_exposure.py
 tools/tests/test_github_footprint_itops.py
 tools/tests/test_manifest.py
 tools/tests/test_model_fabric_release_readiness.py
 tools/tests/test_operational_exhaust_fusion.py
+tools/tests/test_serve.py
 tools/tests/test_service_desk_metrics.py
 tools/validate_client_runtime_dump_exposure.py
 tools/validate_github_footprint_itops.py
 tools/validate_manifest.py
 tools/validate_model_fabric_release_readiness.py
 tools/validate_operational_exhaust_fusion.py
+tools/validate_resource_contract_telemetry.py
 tools/validate_service_desk_metrics.py
