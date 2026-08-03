@@ -1,0 +1,41 @@
+[
+  {
+    "incident_id": "inc-1042",
+    "title": "Checkout payment gateway returning 502",
+    "summary": "Payment gateway timeout caused checkout 502 errors during peak traffic.",
+    "tags": ["checkout", "payment", "gateway", "5xx"],
+    "entities": ["payment-gateway", "checkout-service"],
+    "service_ref": "checkout-service",
+    "topology_distance": 0,
+    "opened_utc": "2026-08-01T12:00:00Z"
+  },
+  {
+    "incident_id": "inc-0991",
+    "title": "Payment provider latency spike",
+    "summary": "Upstream payment provider added latency; some gateway timeouts observed.",
+    "tags": ["payment", "latency", "gateway"],
+    "entities": ["payment-gateway"],
+    "service_ref": "payment-gateway",
+    "topology_distance": 1,
+    "opened_utc": "2026-07-20T09:30:00Z"
+  },
+  {
+    "incident_id": "inc-0777",
+    "title": "Checkout cart persistence failure",
+    "summary": "Cart items not persisting; unrelated to payment path.",
+    "tags": ["checkout", "cart", "database"],
+    "entities": ["cart-service"],
+    "service_ref": "cart-service",
+    "topology_distance": 3,
+    "opened_utc": "2026-06-15T18:00:00Z"
+  },
+  {
+    "incident_id": "inc-0500",
+    "title": "Marketing site CDN cache miss storm",
+    "summary": "CDN misconfiguration caused cache miss storm on the marketing site.",
+    "tags": ["cdn", "marketing", "cache"],
+    "entities": ["cdn-edge"],
+    "service_ref": "marketing-web",
+    "opened_utc": "2026-05-01T00:00:00Z"
+  }
+]
