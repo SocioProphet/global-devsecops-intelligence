@@ -8,8 +8,13 @@ MeshRush (via agentplane's MeshRush adapter) emits ``meshrush_*`` events; GDI
 ingests them here, normalizes, and turns the governance signal (e.g. refused
 slots) into an ops finding.
 
-Transport is a filesystem mailbox (MESH_INPUT_DIR / MESH_OUTPUT_DIR) — a real,
-dependency-free minimal mesh; swap for a bus later without changing this contract.
+Transport is **pluggable** (``MeshTransport``, GDI-2b): the default
+``FilesystemMailbox`` (MESH_INPUT_DIR / MESH_OUTPUT_DIR) is a real, dependency-free
+minimal mesh; ``InMemoryBus`` is an in-process message bus and the **agentplane
+live-wire seam** — agentplane's MeshRush adapter calls ``publish_telemetry`` and GDI
+drains it with the *same* ``consume`` contract. A networked bus (NATS/Redis/Kafka)
+is a further transport behind this same interface — no heavy broker dependency is
+pinned into GDI (sovereign, dependency-light).
 
 Fail-closed: an envelope that does not conform is rejected (recorded, no finding
 produced) — a malformed telemetry item can never silently become a finding.
@@ -26,7 +31,10 @@ import json
 import os
 import re
 import sys
+import threading
+from collections import OrderedDict
 from pathlib import Path
+from typing import Protocol
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "open-ai4it-spec/contracts/schemas/event-envelope.schema.json"
@@ -104,55 +112,164 @@ def _finding_for(event: dict, ts_ms: int, utc: str) -> dict:
     return finding
 
 
-def consume_once(input_dir: Path, output_dir: Path, schema: dict, *, clock=_now_fields) -> dict:
-    """Consume every *.json envelope in ``input_dir``; write findings to ``output_dir``.
+def _dedup_key(raw: "bytes | str") -> str:
+    """Content id of a source event — the idempotency key for its finding."""
+    data = raw if isinstance(raw, bytes) else raw.encode("utf-8")
+    return hashlib.sha256(data).hexdigest()[:16]
 
-    Returns stats ``{consumed, produced, rejected}``. Rejected envelopes are recorded
-    in ``output_dir/_rejected.log`` with their errors; no finding is produced for them.
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir = output_dir / "_processed"
-    rejected_dir = output_dir / "_rejected"
-    stats = {"consumed": 0, "produced": 0, "rejected": 0}
-    rejected_log: list[str] = []
 
-    def _drain(path: Path, dest_dir: Path) -> None:
-        # Move the source out of the inbox so a long-running loop consumes it once.
+class MeshTransport(Protocol):
+    """The consume-loop's transport contract. A filesystem mailbox, an in-process
+    bus, or a networked broker all satisfy it; ``consume`` is identical over any."""
+
+    def poll(self) -> "list[tuple[str, bytes]]":
+        """Return pending ``(message_id, raw_bytes)`` telemetry, oldest first."""
+
+    def ack(self, message_id: str) -> None:
+        """Mark a message consumed (it must not be polled again)."""
+
+    def reject(self, message_id: str, reason: str) -> None:
+        """Mark a message rejected (recorded, removed from the inbox)."""
+
+    def publish_finding(self, finding: dict, *, dedup_key: str) -> "tuple[str, bool]":
+        """Publish a finding idempotently by ``dedup_key``; return ``(id, created)``."""
+
+
+class FilesystemMailbox:
+    """A ``MeshTransport`` over a directory pair (the GDI-2 default). Telemetry is
+    ``input_dir/*.json``; findings and drained sources land under ``output_dir``."""
+
+    def __init__(self, input_dir: Path, output_dir: Path) -> None:
+        self.input_dir = input_dir
+        self.output_dir = output_dir
+        self._pending: "dict[str, Path]" = {}
+
+    def poll(self) -> "list[tuple[str, bytes]]":
+        out: "list[tuple[str, bytes]]" = []
+        if not self.input_dir.exists():
+            return out
+        for path in sorted(self.input_dir.glob("*.json")):
+            self._pending[path.name] = path
+            out.append((path.name, path.read_bytes()))
+        return out
+
+    def _drain(self, message_id: str, subdir: str) -> None:
+        path = self._pending.pop(message_id, None)
+        if path is None or not path.exists():
+            return
+        dest_dir = self.output_dir / subdir
         dest_dir.mkdir(parents=True, exist_ok=True)
         dest = dest_dir / path.name
         if dest.exists():  # avoid clobbering on name reuse
             dest = dest_dir / f"{path.stem}.{hashlib.sha256(path.name.encode()).hexdigest()[:8]}{path.suffix}"
         os.replace(path, dest)
 
-    for path in sorted(input_dir.glob("*.json")) if input_dir.exists() else []:
+    def ack(self, message_id: str) -> None:
+        self._drain(message_id, "_processed")
+
+    def reject(self, message_id: str, reason: str) -> None:
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        with (self.output_dir / "_rejected.log").open("a", encoding="utf-8") as fh:
+            fh.write(f"{message_id}: {reason}\n")
+        self._drain(message_id, "_rejected")
+
+    def publish_finding(self, finding: dict, *, dedup_key: str) -> "tuple[str, bool]":
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        out = self.output_dir / f"finding-{dedup_key}.json"
+        created = not out.exists()
+        if created:
+            out.write_text(json.dumps(finding, indent=2) + "\n", encoding="utf-8")
+        return out.name, created
+
+
+class InMemoryBus:
+    """A thread-safe, dependency-free in-process ``MeshTransport`` — the agentplane
+    live-wire seam. agentplane's MeshRush adapter calls ``publish_telemetry``; GDI
+    drains it via ``consume``. The same contract fronts a networked broker later."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._inbox: "OrderedDict[str, bytes]" = OrderedDict()
+        self._findings: "OrderedDict[str, dict]" = OrderedDict()
+        self._rejected: "list[tuple[str, str]]" = []
+        self._seq = 0
+
+    def publish_telemetry(self, raw: "bytes | str") -> str:
+        """Publish a telemetry envelope onto the bus (the producer/agentplane side)."""
+        data = raw if isinstance(raw, bytes) else raw.encode("utf-8")
+        with self._lock:
+            message_id = f"msg-{self._seq}"
+            self._seq += 1
+            self._inbox[message_id] = data
+        return message_id
+
+    def poll(self) -> "list[tuple[str, bytes]]":
+        with self._lock:
+            return list(self._inbox.items())
+
+    def ack(self, message_id: str) -> None:
+        with self._lock:
+            self._inbox.pop(message_id, None)
+
+    def reject(self, message_id: str, reason: str) -> None:
+        with self._lock:
+            self._inbox.pop(message_id, None)
+            self._rejected.append((message_id, reason))
+
+    def publish_finding(self, finding: dict, *, dedup_key: str) -> "tuple[str, bool]":
+        with self._lock:
+            created = dedup_key not in self._findings
+            if created:
+                self._findings[dedup_key] = finding
+        return dedup_key, created
+
+    def findings(self) -> "list[dict]":
+        """All findings published so far (deduped), in first-seen order."""
+        with self._lock:
+            return list(self._findings.values())
+
+    def rejected(self) -> "list[tuple[str, str]]":
+        """All ``(message_id, reason)`` rejections so far."""
+        with self._lock:
+            return list(self._rejected)
+
+
+def consume(transport: MeshTransport, schema: dict, *, clock=_now_fields) -> dict:
+    """Drain ``transport``'s pending telemetry into findings, fail-closed + idempotent.
+
+    Returns stats ``{consumed, produced, rejected}``. A malformed or non-conforming
+    envelope is rejected (no finding); a finding is published idempotently by the
+    source event's content, so re-draining never duplicates.
+    """
+    stats = {"consumed": 0, "produced": 0, "rejected": 0}
+    for message_id, raw in transport.poll():
         stats["consumed"] += 1
-        raw = path.read_bytes()
         try:
             event = json.loads(raw)
-        except (json.JSONDecodeError, OSError) as exc:
+        except (json.JSONDecodeError, ValueError) as exc:
             stats["rejected"] += 1
-            rejected_log.append(f"{path.name}: unreadable/invalid JSON ({exc})")
-            _drain(path, rejected_dir)
+            transport.reject(message_id, f"unreadable/invalid JSON ({exc})")
             continue
         errs = envelope_errors(event, schema)
         if errs:
             stats["rejected"] += 1
-            rejected_log.append(f"{path.name}: {'; '.join(errs)}")
-            _drain(path, rejected_dir)
+            transport.reject(message_id, "; ".join(errs))
             continue
         ts_ms, utc = clock()
         finding = _finding_for(event, ts_ms, utc)
-        # Idempotent: derive the finding filename from the source event content.
-        out = output_dir / f"finding-{hashlib.sha256(raw).hexdigest()[:16]}.json"
-        if not out.exists():
-            out.write_text(json.dumps(finding, indent=2) + "\n", encoding="utf-8")
+        _, created = transport.publish_finding(finding, dedup_key=_dedup_key(raw))
+        if created:
             stats["produced"] += 1
-        _drain(path, processed_dir)
-
-    if rejected_log:
-        with (output_dir / "_rejected.log").open("a", encoding="utf-8") as fh:
-            fh.write("\n".join(rejected_log) + "\n")
+        transport.ack(message_id)
     return stats
+
+
+def consume_once(input_dir: Path, output_dir: Path, schema: dict, *, clock=_now_fields) -> dict:
+    """Consume every *.json envelope in ``input_dir``; write findings to ``output_dir``.
+
+    Back-compat wrapper over ``consume`` with a ``FilesystemMailbox`` transport.
+    """
+    return consume(FilesystemMailbox(input_dir, output_dir), schema, clock=clock)
 
 
 def main() -> int:
