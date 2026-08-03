@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://socioprophet.org/gdsi/schemas/competitive-landscape.schema.json",
+  "title": "Competitive Landscape (DevSecOps / PaaS / agentic-delivery)",
+  "description": "Product-by-product competitive intelligence for the operations-domain profile. One entry per competitor product; `beats_us_on` records ONLY where the competitor is stronger than the benchmark target, so a projection (generate_competitive_gap_register.py) can rank where we are worse.",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {"const": "gdsi.socioprophet.org/v0"},
+    "kind": {"const": "CompetitiveLandscape"},
+    "metadata": {
+      "type": "object",
+      "required": ["id", "version", "status", "researched_at", "benchmark_target"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {"type": "string"},
+        "version": {"type": "string"},
+        "status": {"enum": ["draft", "review", "published"]},
+        "researched_at": {"type": "string"},
+        "benchmark_target": {"type": "string"}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "required": ["our_position", "competitors"],
+      "additionalProperties": false,
+      "properties": {
+        "our_position": {
+          "type": "object",
+          "required": ["maturity_stage", "summary"],
+          "additionalProperties": true,
+          "properties": {
+            "maturity_stage": {"$ref": "#/$defs/maturity_stage"},
+            "summary": {"type": "string"},
+            "distinctive_claims": {"type": "array", "items": {"type": "string"},
+              "description": "Where we plausibly lead. Recorded for balance; DELIBERATELY excluded from the gap register."}
+          }
+        },
+        "competitors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/competitor"}}
+      }
+    }
+  },
+  "$defs": {
+    "maturity_stage": {
+      "enum": ["experimental", "beta", "ga", "scaled"],
+      "description": "experimental=pre-product/scaffold; beta=usable, not GA; ga=generally available; scaled=GA with proven production scale (millions of users / large enterprise install base)."
+    },
+    "severity": {
+      "enum": ["critical", "high", "medium", "low"],
+      "description": "How damaging this gap is to us competitively. critical=table-stakes we lack; high=material disadvantage in most deals; medium=noticeable; low=nice-to-have."
+    },
+    "cluster": {
+      "enum": ["paas-app-platform", "idp-platform-engineering", "supply-chain-security",
+               "ai-coding-agent", "autonomous-code-review", "gitops-progressive-delivery",
+               "dependency-automation"]
+    },
+    "competitor": {
+      "type": "object",
+      "required": ["vendor", "product", "cluster", "maturity", "beats_us_on"],
+      "additionalProperties": false,
+      "properties": {
+        "vendor": {"type": "string"},
+        "product": {"type": "string"},
+        "cluster": {"$ref": "#/$defs/cluster"},
+        "homepage": {"type": "string"},
+        "maturity": {
+          "type": "object",
+          "required": ["stage"],
+          "additionalProperties": false,
+          "properties": {
+            "stage": {"$ref": "#/$defs/maturity_stage"},
+            "scale": {"type": "string"},
+            "funding": {"type": "string"},
+            "certs": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "features": {"type": "array", "items": {"type": "string"}},
+        "agent_integrations": {"type": "array", "items": {"type": "string"}},
+        "beats_us_on": {
+          "type": "array",
+          "description": "ONLY capabilities where this product is clearly stronger than the benchmark target.",
+          "items": {
+            "type": "object",
+            "required": ["capability", "severity", "evidence"],
+            "additionalProperties": false,
+            "properties": {
+              "capability": {"type": "string", "description": "Short capability slug (kebab-ish), used to cluster the gap register."},
+              "severity": {"$ref": "#/$defs/severity"},
+              "evidence": {"type": "string"},
+              "source": {"type": "string"}
+            }
+          }
+        },
+        "sources": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

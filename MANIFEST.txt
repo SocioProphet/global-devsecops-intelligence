@@ -136,3 +136,9 @@ tools/validate_model_fabric_release_readiness.py
 tools/validate_operational_exhaust_fusion.py
 tools/validate_resource_contract_telemetry.py
 tools/validate_service_desk_metrics.py
+schemas/competitive-landscape.schema.json
+profiles/competitive-landscape-profile.v0.yaml
+tools/validate_competitive_landscape.py
+tools/generate_competitive_gap_register.py
+source_inputs/competitive-intel/landscape.v0.yaml
+docs/competitive/where-we-stand.md
