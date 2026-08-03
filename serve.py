@@ -16,6 +16,11 @@ Stdlib only (keeps requirements.txt to PyYAML+pytest).
 import json, os, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+# GDI-2c: reuse the mesh transport/consume core for the in-process bus + HTTP ingest.
+sys.path.insert(0, os.path.join(_HERE, "tools"))
+from mesh_consume import InMemoryBus, consume  # noqa: E402
+
 
 def _int_env(key: str, default: int) -> int:
     """Parse an int env var, falling back to default on a malformed value so a
@@ -33,10 +38,28 @@ INTERVAL_S = _int_env("GDI_VALIDATE_INTERVAL_S", 300)
 # unchanged until an operator opts in with MESH_ENABLED=1 (+ MESH_INPUT_DIR/MESH_OUTPUT_DIR).
 MESH_ENABLED = os.environ.get("MESH_ENABLED", "0").strip().lower() not in ("", "0", "false", "no")
 MESH_INTERVAL_S = _int_env("MESH_INTERVAL_S", 60)
+# GDI-2c: cap the HTTP telemetry body (fail-closed against oversized posts).
+MESH_MAX_BODY = _int_env("MESH_MAX_BODY", 1 << 20)
 
 _state = {"last_rc": None, "last_ts": 0, "runs": 0, "fails": 0}
 _mesh = {"runs": 0, "consumed": 0, "produced": 0, "rejected": 0, "last_ts": 0}
 _lock = threading.Lock()
+
+# GDI-2c: the in-process bus behind POST /mesh/telemetry (the agentplane live wire).
+# agentplane POSTs telemetry -> published here -> drained by the mesh loop with the
+# same consume() contract. No networked broker is pinned (sovereign).
+_BUS = InMemoryBus()
+_mesh_schema_cache = None
+
+
+def _mesh_schema() -> dict:
+    """Load (and cache) the event-envelope schema; path-anchored, cwd-independent."""
+    global _mesh_schema_cache
+    if _mesh_schema_cache is None:
+        path = os.path.join(_HERE, "open-ai4it-spec/contracts/schemas/event-envelope.schema.json")
+        with open(path, encoding="utf-8") as fh:
+            _mesh_schema_cache = json.load(fh)
+    return _mesh_schema_cache
 
 
 def _mesh_loop() -> None:
@@ -64,6 +87,14 @@ def _mesh_loop() -> None:
                 sys.stderr.write(f"[gdi] mesh_consume rc={r.returncode}\n{r.stderr[-2000:]}\n")
         except Exception as e:
             sys.stderr.write(f"[gdi] mesh_consume errored: {e}\n")
+        # GDI-2c: also drain the in-process bus (HTTP-ingested telemetry), same contract.
+        try:
+            bstats = consume(_BUS, _mesh_schema())
+            with _lock:
+                for k in ("consumed", "produced", "rejected"):
+                    _mesh[k] += int(bstats.get(k, 0))
+        except Exception as e:
+            sys.stderr.write(f"[gdi] mesh bus drain errored: {e}\n")
         time.sleep(MESH_INTERVAL_S)
 
 
@@ -125,6 +156,9 @@ def _mesh_metrics() -> str:
         "# HELP gdi_mesh_rejected_total telemetry events rejected (fail-closed).\n"
         "# TYPE gdi_mesh_rejected_total counter\n"
         f"gdi_mesh_rejected_total {m['rejected']}\n"
+        "# HELP gdi_mesh_bus_pending telemetry envelopes on the in-process bus awaiting drain.\n"
+        "# TYPE gdi_mesh_bus_pending gauge\n"
+        f"gdi_mesh_bus_pending {len(_BUS.poll())}\n"
     )
 
 
@@ -146,6 +180,37 @@ class H(BaseHTTPRequestHandler):
             self.end_headers(); self.wfile.write(body)
         else:
             self.send_response(404); self.end_headers()
+
+    def _reply(self, code: int, obj: dict) -> None:
+        body = (json.dumps(obj) + "\n").encode()
+        self.send_response(code); self.send_header("Content-Type", "application/json")
+        self.end_headers(); self.wfile.write(body)
+
+    def do_POST(self):
+        # GDI-2c: agentplane (or any producer) posts a telemetry EventEnvelope here;
+        # it is published onto the in-process bus and drained by the mesh loop under
+        # the same fail-closed consume() contract. Off unless MESH_ENABLED.
+        if self.path != "/mesh/telemetry":
+            self.send_response(404); self.end_headers(); return
+        if not MESH_ENABLED:
+            self._reply(503, {"error": "mesh disabled"}); return
+        try:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+        except (ValueError, TypeError):
+            length = -1
+        if length <= 0:
+            self._reply(400, {"error": "missing/invalid Content-Length"}); return
+        if length > MESH_MAX_BODY:
+            self._reply(413, {"error": f"body exceeds {MESH_MAX_BODY} bytes"}); return
+        body = self.rfile.read(length)
+        # Edge guard: reject blatantly non-JSON at ingest (envelope validation still
+        # happens fail-closed at consume time); don't let junk fill the bus.
+        try:
+            json.loads(body)
+        except (json.JSONDecodeError, ValueError):
+            self._reply(400, {"error": "body is not valid JSON"}); return
+        msg_id = _BUS.publish_telemetry(body)
+        self._reply(202, {"accepted": msg_id})
 
 
 def main() -> None:
