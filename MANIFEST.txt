@@ -124,6 +124,7 @@ tools/tests/test_manifest.py
 tools/tests/test_mesh_consume.py
 tools/tests/test_model_fabric_release_readiness.py
 tools/tests/test_operational_exhaust_fusion.py
+tools/tests/test_resource_contract_verdict.py
 tools/tests/test_serve.py
 tools/tests/test_service_desk_metrics.py
 tools/validate_client_runtime_dump_exposure.py

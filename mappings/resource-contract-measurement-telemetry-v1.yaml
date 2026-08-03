@@ -93,12 +93,17 @@ canonical_objects:
         enforcement != observe AND fired_count > 0 AND the observed peak is gate-eligible —
         the control has been observed to act on real load.
       VIOLATION: >-
-        observed_peak.value > limit.value AND fired_count == 0 — the limit was exceeded in
-        production and never once enforced. A never-fired control is a counterexample to the
-        claim that it is a control, not the absence of one.
+        enforcement != observe AND observed_peak.value > limit.value AND fired_count == 0 — a
+        control that CLAIMED teeth (throttle/refuse/terminate) was exceeded in production and
+        never once enforced. A never-fired control is a counterexample to the claim that it is
+        a control, not the absence of one. The enforcement != observe guard is load-bearing:
+        VIOLATION is a broken ENFORCEMENT PROMISE, and observe mode makes no such promise.
       INCONCLUSIVE: >-
         the observed peak is not gate-eligible (measurement_source != measured, or members were
-        unobserved) — sufficiency is not established, so no verdict on the control can be drawn.
+        unobserved), OR the contract is observe-mode — a declared gauge, not a gate, which makes
+        no teeth-claim to prove or violate. In neither case can a verdict on enforcement teeth
+        be drawn. The exceedance itself is never hidden: it still flows as a resource-saturation
+        TelemetrySignal regardless of verdict.
 
 normalization_rules:
   - id: carry_gate_eligibility_unrecomputed
@@ -108,10 +113,23 @@ normalization_rules:
       that owns the instrument; a consumer may lower it but never raise it.
   - id: never_fired_control_is_a_violation
     rule: >-
-      A ResourceContract whose observed peak exceeds its limit while fired_count is zero MUST
-      normalize to a SufficiencyVerdict of VIOLATION and be published to ops.learning.feedback.v1.
-      It MUST NOT be dropped, summarized to a healthy counter, or downgraded to INCONCLUSIVE —
-      the exceedance was measured, so sufficiency is not the question; enforcement is.
+      A ResourceContract whose enforcement is not observe, whose observed peak exceeds its limit,
+      and whose fired_count is zero MUST normalize to a SufficiencyVerdict of VIOLATION and be
+      published to ops.learning.feedback.v1. It MUST NOT be dropped, summarized to a healthy
+      counter, or downgraded to INCONCLUSIVE — the exceedance was measured and enforcement was
+      claimed, so the broken promise is the finding. The enforcement != observe qualifier is
+      required: an observe-mode contract makes no enforcement promise and so cannot violate one
+      (see observe_mode_exceedance_is_inconclusive_not_violation); its exceedance still flows as
+      telemetry, but yields no teeth-verdict.
+  - id: observe_mode_exceedance_is_inconclusive_not_violation
+    rule: >-
+      A ResourceContract with enforcement == observe whose observed peak exceeds its limit MUST
+      normalize to INCONCLUSIVE, never VIOLATION. Observe mode is the honest, declared "gauge not
+      gate" (ResourceContract requires an observeOnlyReason for it). Marking it VIOLATION would
+      accuse a gauge of failing to be a gate and would punish honest declaration — training the
+      learning loop to demand fixes for things explicitly declared not-controls. The exceedance
+      is still published as a resource-saturation TelemetrySignal so an operator can decide
+      whether to promote the gauge to an enforcing limit.
   - id: unmeasured_peak_is_inconclusive_not_healthy
     rule: >-
       A ResourceContract whose observed peak is not gate-eligible MUST normalize to INCONCLUSIVE,

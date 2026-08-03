@@ -29,14 +29,22 @@ so the loop speaks one language end to end:
 | condition | verdict | meaning |
 |---|---|---|
 | `enforcement != observe` and `fired_count > 0` and peak gate-eligible | **PROVED** | the control has been observed to act on real load |
-| `observedPeak.value > limit.value` and `fired_count == 0` | **VIOLATION** | never-fired control — a counterexample to the claim it is a control |
+| `enforcement != observe` and `observedPeak.value > limit.value` and `fired_count == 0` | **VIOLATION** | never-fired control — a counterexample to the claim it is a control |
 | peak not gate-eligible (`source != measured` or `unobserved > 0`) | **INCONCLUSIVE** | sufficiency unestablished; no verdict on the control can be drawn |
+| `enforcement == observe` and `observedPeak.value > limit.value` | **INCONCLUSIVE** | a declared gauge, not a gate — no teeth-claim to prove or violate |
 
-The **VIOLATION** row is the load-bearing one. A limit exceeded in production that never once
-enforced is not an absence of news — it is evidence the control is paper. The normalization rule
-`never_fired_control_is_a_violation` forbids dropping it, summarizing it to a healthy counter, or
-downgrading it to INCONCLUSIVE: the exceedance was *measured*, so sufficiency is not the question,
-enforcement is.
+The **VIOLATION** row is the load-bearing one. A limit that *claimed teeth* and was exceeded in
+production yet never once enforced is not an absence of news — it is evidence the control is
+paper. The rule `never_fired_control_is_a_violation` forbids dropping it, summarizing it to a
+healthy counter, or downgrading it to INCONCLUSIVE.
+
+The `enforcement != observe` guard on that row is itself load-bearing. VIOLATION is a **broken
+enforcement promise**, and `observe` mode makes no promise — it is the honest, declared "gauge,
+not gate" (ResourceContract requires an `observeOnlyReason` for it). An observe-mode exceedance is
+therefore **INCONCLUSIVE**, per `observe_mode_exceedance_is_inconclusive_not_violation`: flagging
+it VIOLATION would accuse a gauge of failing to be a gate and punish honest declaration. The
+exceedance is never hidden either way — it flows as a `resource-saturation` TelemetrySignal
+regardless of verdict, so an operator can still decide to promote the gauge to an enforcing limit.
 
 ## Canonical objects and topics
 
