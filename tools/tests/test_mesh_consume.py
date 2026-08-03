@@ -4,7 +4,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from mesh_consume import consume_once, envelope_errors  # noqa: E402
+from mesh_consume import (  # noqa: E402
+    InMemoryBus,
+    consume,
+    consume_once,
+    envelope_errors,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = json.loads((ROOT / "open-ai4it-spec/contracts/schemas/event-envelope.schema.json").read_text())
@@ -76,3 +81,49 @@ def test_inbox_is_drained_so_reruns_do_not_reconsume(tmp_path):
     assert stats2 == {"consumed": 0, "produced": 0, "rejected": 0}
     assert len(list(outbox.glob("finding-*.json"))) == 1
     assert (outbox / "_processed" / "e1.json").exists()
+
+
+# --- GDI-2b: pluggable transport / in-process bus (agentplane live wire) --------
+
+def test_inmemory_bus_valid_produces_finding_and_acks():
+    bus = InMemoryBus()
+    bus.publish_telemetry(json.dumps(_valid_slot_fill()))  # agentplane producer side
+    stats = consume(bus, SCHEMA, clock=CLOCK)
+    assert stats == {"consumed": 1, "produced": 1, "rejected": 0}
+    findings = bus.findings()
+    assert len(findings) == 1
+    assert findings[0]["data"]["severity"] == "warn"
+    assert envelope_errors(findings[0], SCHEMA) == []
+    assert bus.poll() == []  # acked -> not re-polled
+
+
+def test_inmemory_bus_malformed_is_rejected_not_a_finding():
+    bus = InMemoryBus()
+    bus.publish_telemetry(json.dumps({"type": "MeshRush", "data": {}}))  # missing/invalid fields
+    stats = consume(bus, SCHEMA, clock=CLOCK)
+    assert stats["rejected"] == 1 and stats["produced"] == 0
+    assert bus.findings() == []
+    assert len(bus.rejected()) == 1
+
+
+def test_inmemory_bus_is_idempotent_across_identical_events():
+    bus = InMemoryBus()
+    payload = json.dumps(_valid_slot_fill())
+    bus.publish_telemetry(payload)
+    bus.publish_telemetry(payload)  # identical content -> same dedup key
+    stats = consume(bus, SCHEMA, clock=CLOCK)
+    assert stats["consumed"] == 2
+    assert stats["produced"] == 1  # deduped: one finding only
+    assert len(bus.findings()) == 1
+
+
+def test_bus_and_mailbox_agree_over_the_same_contract(tmp_path):
+    # the swap-the-transport promise: identical stats over either transport.
+    ev = _valid_slot_fill()
+    inbox, outbox = tmp_path / "in", tmp_path / "out"
+    _write(inbox, "e1.json", ev)
+    fs_stats = consume_once(inbox, outbox, SCHEMA, clock=CLOCK)
+    bus = InMemoryBus()
+    bus.publish_telemetry(json.dumps(ev))
+    bus_stats = consume(bus, SCHEMA, clock=CLOCK)
+    assert fs_stats == bus_stats == {"consumed": 1, "produced": 1, "rejected": 0}
