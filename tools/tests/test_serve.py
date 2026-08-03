@@ -22,6 +22,7 @@ def _serve_and_post(path, body, *, mesh_enabled, headers=None):
     port = srv.server_address[1]
     t = threading.Thread(target=srv.serve_forever, daemon=True)
     t.start()
+    conn = None
     try:
         conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
         payload = body if isinstance(body, (bytes, str)) else json.dumps(body)
@@ -29,7 +30,11 @@ def _serve_and_post(path, body, *, mesh_enabled, headers=None):
         resp = conn.getresponse()
         return resp.status, resp.read()
     finally:
+        if conn is not None:
+            conn.close()
         srv.shutdown()
+        srv.server_close()   # close the listening socket — every call leaked one otherwise
+        t.join(timeout=5)    # and its serve_forever thread
 
 
 def test_int_env_falls_back_on_malformed():

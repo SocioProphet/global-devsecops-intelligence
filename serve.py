@@ -181,7 +181,37 @@ class H(BaseHTTPRequestHandler):
         else:
             self.send_response(404); self.end_headers()
 
+    def _drain(self) -> None:
+        """Discard any unread request body so closing the socket sends FIN, not RST.
+
+        A rejection (503/413/400) that replies WITHOUT reading the posted body leaves bytes in
+        the kernel receive buffer; on close the OS sends RST instead of FIN, and the client sees
+        ``ConnectionResetError`` mid-read instead of the response we just sent — intermittently,
+        depending on delivery timing. A real telemetry producer POSTing to a disabled endpoint
+        would hit the same reset, not a clean 503. Draining fixes it at the source.
+
+        Bounded to MESH_MAX_BODY + 64 KiB: a normal or slightly-oversized body is drained in full
+        (no reset), while a pathologically huge body is not read to completion (the 413 DoS guard
+        still holds — the remainder is discarded on close). Idempotent: a path that already read
+        the body sets ``_body_consumed`` and this returns immediately, so it never blocks waiting
+        for bytes that were already consumed.
+        """
+        if getattr(self, "_body_consumed", False):
+            return
+        self._body_consumed = True
+        try:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+        except (ValueError, TypeError):
+            return
+        remaining = min(max(length, 0), MESH_MAX_BODY + (1 << 16))
+        while remaining > 0:
+            chunk = self.rfile.read(min(remaining, 1 << 16))
+            if not chunk:
+                break
+            remaining -= len(chunk)
+
     def _reply(self, code: int, obj: dict) -> None:
+        self._drain()  # never RST a client that is still reading the response we send below
         body = (json.dumps(obj) + "\n").encode()
         self.send_response(code); self.send_header("Content-Type", "application/json")
         self.end_headers(); self.wfile.write(body)
@@ -191,7 +221,7 @@ class H(BaseHTTPRequestHandler):
         # it is published onto the in-process bus and drained by the mesh loop under
         # the same fail-closed consume() contract. Off unless MESH_ENABLED.
         if self.path != "/mesh/telemetry":
-            self.send_response(404); self.end_headers(); return
+            self._drain(); self.send_response(404); self.end_headers(); return
         if not MESH_ENABLED:
             self._reply(503, {"error": "mesh disabled"}); return
         try:
@@ -203,6 +233,7 @@ class H(BaseHTTPRequestHandler):
         if length > MESH_MAX_BODY:
             self._reply(413, {"error": f"body exceeds {MESH_MAX_BODY} bytes"}); return
         body = self.rfile.read(length)
+        self._body_consumed = True  # body now read; _reply()'s drain becomes a no-op
         # Edge guard: reject blatantly non-JSON at ingest (envelope validation still
         # happens fail-closed at consume time); don't let junk fill the bus.
         try:
