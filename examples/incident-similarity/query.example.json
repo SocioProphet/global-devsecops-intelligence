@@ -1,0 +1,12 @@
+{
+  "query_id": "isq-2026-08-03-checkout-5xx",
+  "terms": [
+    "checkout",
+    "payment",
+    "502",
+    "gateway",
+    "timeout"
+  ],
+  "as_of_utc": "2026-08-03T00:00:00Z",
+  "top_k": 4
+}

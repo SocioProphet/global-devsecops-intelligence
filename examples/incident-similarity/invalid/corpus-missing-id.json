@@ -1,0 +1,8 @@
+[
+  {
+    "title": "An incident with no incident_id",
+    "summary": "The scorer must refuse a corpus entry that cannot be identified.",
+    "tags": ["checkout"],
+    "entities": ["checkout-service"]
+  }
+]

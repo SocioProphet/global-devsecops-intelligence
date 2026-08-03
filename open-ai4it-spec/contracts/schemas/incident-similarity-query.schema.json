@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI4IT Incident Similarity Query",
+  "description": "Search terms an SRE provides to the Similar Incidents Service, plus optional scoring overrides. Pipeline 3 of the AI4IT reference architecture.",
+  "type": "object",
+  "required": [
+    "query_id",
+    "terms"
+  ],
+  "properties": {
+    "query_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable identifier for this query; echoed into the result and sealed into the receipt."
+    },
+    "terms": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "Free-text search terms from the SRE. Tokenized lowercase on non-alphanumeric boundaries."
+    },
+    "as_of_utc": {
+      "type": "string",
+      "description": "RFC3339/ISO-8601 UTC instant the recency signal is measured against. Supplied explicitly so scoring is time-independent and reproducible; omit to disable the recency signal."
+    },
+    "top_k": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional cap on the number of ranked matches returned (after min_score filtering)."
+    },
+    "weights": {
+      "type": "object",
+      "description": "Optional overrides for the per-signal weights (normalized to sum 1 at scoring time).",
+      "properties": {
+        "lexical": { "type": "number", "minimum": 0 },
+        "entity_overlap": { "type": "number", "minimum": 0 },
+        "topology": { "type": "number", "minimum": 0 },
+        "recency": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "thresholds": {
+      "type": "object",
+      "description": "Optional overrides for the Assay verdict bands and match floor.",
+      "properties": {
+        "ok": { "type": "number", "minimum": 0, "maximum": 1 },
+        "sad": { "type": "number", "minimum": 0, "maximum": 1 },
+        "min_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

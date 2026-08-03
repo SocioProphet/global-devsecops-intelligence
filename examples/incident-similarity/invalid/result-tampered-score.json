@@ -1,0 +1,134 @@
+{
+  "as_of_utc": "2026-08-03T00:00:00Z",
+  "matches": [
+    {
+      "explainability": {
+        "matched_terms": [
+          "502",
+          "checkout",
+          "gateway",
+          "payment",
+          "timeout"
+        ],
+        "weighted_contributions": {
+          "entity_overlap": 0.1,
+          "lexical": 0.192308,
+          "recency": 0.04,
+          "topology": 0.2
+        }
+      },
+      "incident_id": "inc-1042",
+      "rank": 0,
+      "score": 0.532308,
+      "signals": {
+        "entity_overlap": 0.5,
+        "lexical": 0.384615,
+        "recency": 0.4,
+        "topology": 1.0
+      },
+      "verdict": {
+        "method": "computed",
+        "state": "ok"
+      }
+    },
+    {
+      "explainability": {
+        "matched_terms": [
+          "gateway",
+          "payment"
+        ],
+        "weighted_contributions": {
+          "entity_overlap": 0.08,
+          "lexical": 0.076923,
+          "recency": 0.006847,
+          "topology": 0.1
+        }
+      },
+      "incident_id": "inc-0991",
+      "rank": 1,
+      "score": 0.26377,
+      "signals": {
+        "entity_overlap": 0.4,
+        "lexical": 0.153846,
+        "recency": 0.068474,
+        "topology": 0.5
+      },
+      "verdict": {
+        "method": "computed",
+        "state": "sad"
+      }
+    },
+    {
+      "explainability": {
+        "matched_terms": [
+          "checkout",
+          "payment"
+        ],
+        "weighted_contributions": {
+          "entity_overlap": 0.0,
+          "lexical": 0.0625,
+          "recency": 0.00203,
+          "topology": 0.05
+        }
+      },
+      "incident_id": "inc-0777",
+      "rank": 2,
+      "score": 0.11453,
+      "signals": {
+        "entity_overlap": 0.0,
+        "lexical": 0.125,
+        "recency": 0.020305,
+        "topology": 0.25
+      },
+      "verdict": {
+        "method": "computed",
+        "state": "bad"
+      }
+    },
+    {
+      "explainability": {
+        "matched_terms": [],
+        "weighted_contributions": {
+          "entity_overlap": 0.0,
+          "lexical": 0.0,
+          "recency": 0.001053,
+          "topology": 0.0
+        }
+      },
+      "incident_id": "inc-0500",
+      "rank": 3,
+      "score": 0.99,
+      "signals": {
+        "entity_overlap": 0.0,
+        "lexical": 0.0,
+        "recency": 0.010526,
+        "topology": 0.0
+      },
+      "verdict": {
+        "method": "computed",
+        "state": "ok"
+      }
+    }
+  ],
+  "query_id": "isq-2026-08-03-checkout-5xx",
+  "receipt": {
+    "algorithm": "sha256",
+    "candidate_count": 4,
+    "match_count": 4,
+    "query_id": "isq-2026-08-03-checkout-5xx",
+    "receipt_version": "0.1.0",
+    "trace_hash": "sha256:febbf5782da5b5038d09dcd661105bf769684f47040791bfc815e3bdf352cf2d"
+  },
+  "schema_version": "0.1.0",
+  "thresholds": {
+    "min_score": 0.0,
+    "ok": 0.5,
+    "sad": 0.2
+  },
+  "weights": {
+    "entity_overlap": 0.2,
+    "lexical": 0.5,
+    "recency": 0.1,
+    "topology": 0.2
+  }
+}

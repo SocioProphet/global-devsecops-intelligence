@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI4IT Incident Similarity Result",
+  "description": "Ranked similar-incident matches with per-signal explainability, an Assay verdict, and a SHA-256 provenance receipt. Output of the Similar Incidents Service (Pipeline 3).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "query_id",
+    "weights",
+    "thresholds",
+    "matches",
+    "receipt"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "query_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "as_of_utc": {
+      "type": ["string", "null"],
+      "description": "Echo of the query as_of_utc used for the recency signal (null if none supplied)."
+    },
+    "weights": {
+      "type": "object",
+      "required": ["lexical", "entity_overlap", "topology", "recency"],
+      "properties": {
+        "lexical": { "type": "number" },
+        "entity_overlap": { "type": "number" },
+        "topology": { "type": "number" },
+        "recency": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "thresholds": {
+      "type": "object",
+      "required": ["ok", "sad", "min_score"],
+      "properties": {
+        "ok": { "type": "number" },
+        "sad": { "type": "number" },
+        "min_score": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "matches": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/match" }
+    },
+    "receipt": { "$ref": "#/$defs/receipt" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "match": {
+      "type": "object",
+      "required": [
+        "incident_id",
+        "rank",
+        "score",
+        "signals",
+        "explainability",
+        "verdict"
+      ],
+      "properties": {
+        "incident_id": { "type": "string", "minLength": 1 },
+        "rank": { "type": "integer", "minimum": 0 },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "signals": {
+          "type": "object",
+          "required": ["lexical", "entity_overlap", "topology", "recency"],
+          "properties": {
+            "lexical": { "type": "number", "minimum": 0, "maximum": 1 },
+            "entity_overlap": { "type": "number", "minimum": 0, "maximum": 1 },
+            "topology": { "type": "number", "minimum": 0, "maximum": 1 },
+            "recency": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "explainability": {
+          "type": "object",
+          "required": ["matched_terms", "weighted_contributions"],
+          "properties": {
+            "matched_terms": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "weighted_contributions": {
+              "type": "object",
+              "required": ["lexical", "entity_overlap", "topology", "recency"],
+              "properties": {
+                "lexical": { "type": "number" },
+                "entity_overlap": { "type": "number" },
+                "topology": { "type": "number" },
+                "recency": { "type": "number" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "verdict": {
+          "type": "object",
+          "required": ["state", "method"],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": ["ok", "sad", "bad"],
+              "description": "Assay projection over the final score. ok = confident match; sad = real but low-confidence (unassayed); bad = too weak to trust."
+            },
+            "method": {
+              "type": "string",
+              "const": "computed",
+              "description": "Always computed: the score is deterministic lexical/graph arithmetic, never generative."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "receipt": {
+      "type": "object",
+      "required": [
+        "receipt_version",
+        "algorithm",
+        "trace_hash",
+        "candidate_count",
+        "match_count"
+      ],
+      "properties": {
+        "receipt_version": { "type": "string", "const": "0.1.0" },
+        "algorithm": {
+          "type": "string",
+          "const": "sha256",
+          "description": "SHA-256 (FIPS-180-4 algorithm). Not a FIPS-140 module claim."
+        },
+        "trace_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "Hash over normalized query terms, sorted corpus ids, weights, thresholds, and the ranked (id, score) result."
+        },
+        "query_id": { "type": ["string", "null"] },
+        "candidate_count": { "type": "integer", "minimum": 0 },
+        "match_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
