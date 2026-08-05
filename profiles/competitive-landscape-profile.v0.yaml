@@ -1,0 +1,62 @@
+profile:
+  id: competitive-landscape
+  version: 0.1.0
+  status: draft
+  purpose: >-
+    Product-by-product competitive intelligence for the DevSecOps / PaaS / agentic-delivery
+    market, scoped to the operations-domain profile's market/execution lane. Each competitor
+    carries maturity, agent integrations, and a `beats_us_on` list of ONLY the capabilities
+    where it is stronger than the benchmark target, so a projection can rank where we lose.
+
+ownership_boundary:
+  canonical_storage_and_wire: SocioProphet/socioprophet-standards-storage
+  canonical_ontology:
+    - SocioProphet/ontogenesis
+    - SocioProphet/socioprophet-standards-knowledge
+  operations_domain_projection: SocioProphet/global-devsecops-intelligence
+
+artifacts:
+  schema: schemas/competitive-landscape.schema.json
+  source_input: source_inputs/competitive-intel/landscape.v0.yaml
+  validator: tools/validate_competitive_landscape.py
+  gap_register_generator: tools/generate_competitive_gap_register.py
+  gap_register: docs/competitive/where-we-stand.md
+
+lanes:
+  market_execution:
+    examples:
+      - competitor.profiled
+      - capability.gap.detected
+      - maturity.stage.assessed
+      - gap.register.generated
+
+capability_axes:   # the dimensions the market is compared on
+  - managed-data-services
+  - agent-native-mcp-ops-surface
+  - compliance-certifications
+  - ga-scale-and-capital
+  - web-ui-developer-portal
+  - golden-path-scaffolding-marketplace
+  - multi-region-autoscaling
+  - progressive-delivery-auto-rollback
+  - multi-cluster-fleet
+  - gpu-ai-inference-primitive
+  - vuln-db-broad-scanning
+  - reachability-exploitability
+  - malicious-package-detection
+  - broad-ecosystem-dep-automation
+  - autonomous-remediation-agents
+  - attestation-provenance-slsa
+  - artifact-registry-maturity
+  - composition-provider-ecosystem
+  - capability-contract-marketplace
+  - autonomous-code-review-mature
+  - autonomous-feature-development
+  - vendor-neutral-governance
+  - sovereign-airgap-contested
+
+maturity_ladder:   # aligns with the AI4IT maturity model; used for our_position + each competitor
+  - experimental   # pre-product / scaffold
+  - beta           # usable, not GA
+  - ga             # generally available
+  - scaled         # GA at proven production scale

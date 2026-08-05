@@ -54,6 +54,8 @@ docs/architecture/ops-ingestion-and-measurement-plane.md
 docs/architecture/runtime-control-plane-telemetry-alignment.md
 docs/architecture/support-and-premium-support-ai4it-loop.md
 docs/architecture/telemetry-surface-profile.md
+docs/competitive/superiority-march.md
+docs/competitive/where-we-stand.md
 docs/devops/ci-validation-gate.md
 docs/devops/client-runtime-dump-exposure.md
 docs/devops/devops-process-open.md
@@ -97,12 +99,15 @@ open-ai4it-spec/modules/story_services/README.md
 open-ai4it-spec/modules/story_services/incident_similarity/scorer.py
 profiles/browser-telemetry-risk-profile.v0.yaml
 profiles/client-runtime-dump-exposure-profile.v0.yaml
+profiles/competitive-landscape-profile.v0.yaml
 profiles/github-footprint-itops-expansion.yaml
 profiles/operational-exhaust-fusion-profile.v0.yaml
 requirements.txt
+schemas/competitive-landscape.schema.json
 schemas/github-footprint-itops-generated.schema.json
 serve.py
 source_inputs/README.md
+source_inputs/competitive-intel/landscape.v0.yaml
 source_inputs/institutional-account/account-hierarchy.v0.json
 source_inputs/integration-planes/ops-integration-map.v0.json
 source_inputs/ontogenesis/module-map.v0.json
@@ -113,6 +118,7 @@ third_party/ibm-itops/GLO_V1-profile-excerpt.ttl
 third_party/ibm-itops/IMPORT-MANIFEST.v2.json
 third_party/ibm-itops/LICENSE.Apache-2.0
 third_party/ibm-itops/UPSTREAM.md
+tools/generate_competitive_gap_register.py
 tools/generate_github_footprint_itops_projection.py
 tools/mesh_consume.py
 tools/tests/fixtures/client-runtime-dump-exposure/allowed-synthetic.txt
@@ -128,6 +134,7 @@ tools/tests/test_resource_contract_verdict.py
 tools/tests/test_serve.py
 tools/tests/test_service_desk_metrics.py
 tools/validate_client_runtime_dump_exposure.py
+tools/validate_competitive_landscape.py
 tools/validate_github_footprint_itops.py
 tools/validate_incident_similarity.py
 tools/validate_manifest.py
